@@ -1,0 +1,9 @@
+.git
+.vscode
+.*ignore
+*.md
+docker-compose*.yaml
+.env
+.env.production
+venv
+k8s 
