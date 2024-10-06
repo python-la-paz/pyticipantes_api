@@ -61,3 +61,39 @@ class UserService:
             return UserInDB(**ret)
         else:
             return None
+
+    @classmethod
+    def get_user_by_username(cls, username: str) -> UserInDB | None:
+        ret = cls.TABLE.find_one({"username": username, "disabled": False})
+        if ret is not None:
+            return UserInDB(**ret)
+        else:
+            return None
+        
+    @classmethod
+    def update_extra_info(cls, user: UserInDB) -> UserInDB | None:
+        """Update user extra information in database
+
+        Args:
+            user (UserInDB): User to update extra information
+
+        Returns:
+            UserInDB | None: User updated or None if error
+        """
+        if not hasattr(user, "id"):
+            return None
+        if hasattr(user, "date_insert"):
+            delattr(user, "date_insert")
+        if hasattr(user, "username"):
+            delattr(user, "username")
+        if hasattr(user, "email"):
+            delattr(user, "email")
+        if hasattr(user, "admin"):
+            delattr(user, "admin")
+        user.date_update = datetime.now(timezone.utc)
+        ret = cls.TABLE.find_one_and_update(
+            {"_id": user.id},
+            {"$set": user.model_dump(by_alias=True)},
+            return_document=ReturnDocument.AFTER,
+        )
+        return UserInDB(**ret)

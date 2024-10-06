@@ -1,0 +1,77 @@
+from app.models.user import User, UserAPI
+from app.services.user import UserService
+
+
+class UserProfileService:
+    
+    @classmethod
+    def get_public_user(cls, username:str) -> User | None:
+        """Get public user profile by username
+
+        Args:
+            username (str): Username to search in database
+
+        Returns:
+            UserPublic | None: User found or None
+        """
+        find = UserService.get_user_by_username(username)
+        if not find:
+            return None
+        find = UserAPI(**find.model_dump(by_alias=True))
+        find.data_complete = cls.validate_data(find)
+        return find
+        
+    @classmethod
+    def validate_data(cls, user: UserAPI) -> bool:
+        """Validate user additional data complete
+        Args:
+            user (UserAPI): User to validate
+        Returns:        
+            bool: True if data is complete, False if not
+        """ 
+        if not user.birthday:
+            return False
+        if not user.gender:
+            return False
+        if not user.dni:
+            return False
+        if not user.profession:
+            return False
+        if not user.place_profession:
+            return False
+        if not user.residence:
+            return False
+        if not user.level_programming:
+            return False
+        if not user.phone:
+            return False
+        return True
+    
+    @classmethod
+    def update_user(cls, user: UserAPI) -> UserAPI | None:
+        """Update user profile
+
+        Args:
+            user (UserAPI): User to update in database
+
+        Returns:
+            UserAPI | None: User updated or None
+        """
+        find = UserService.get_user_by_username(user.username)
+        if not find:
+            return None
+        find.birthday = user.birthday
+        find.gender = user.gender
+        find.dni = user.dni
+        find.profession = user.profession
+        find.place_profession = user.place_profession
+        find.residence = user.residence
+        find.level_programming = user.level_programming
+        find.phone = user.phone
+        
+        updated = UserService.update_extra_info(find)
+        if not updated:
+            return None
+        updated = UserAPI(**updated.model_dump(by_alias=True))
+        updated.data_complete = cls.validate_data(updated)
+        return updated

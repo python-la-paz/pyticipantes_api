@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, status
 
 from app.auth.access import get_actual_user
 from app.models import Event, UserInDB, EventInDB
+from app.models.event import EventAPI
 from app.services import EventService
 from app.utils.mongo_validator import PyObjectId
 
@@ -32,7 +33,21 @@ async def get_event_by_id(id: PyObjectId, user: UserInDB = Depends(get_actual_us
 
 
 @router.post("", response_model=Event, status_code=status.HTTP_201_CREATED)
-async def create_event(event: Event, user: UserInDB = Depends(get_actual_user)):
+async def create_event(event: EventAPI, user: UserInDB = Depends(get_actual_user)):
     eventdb = EventInDB(**event.model_dump(by_alias=True))
     eventdb.username_insert = user.username
     return EventService.insert(item=eventdb)
+
+@router.put("/{id}", response_model=Event, status_code=status.HTTP_200_OK)
+async def update_event(
+    id: PyObjectId, event: EventAPI, user: UserInDB = Depends(get_actual_user)
+):
+    eventdb = EventInDB(**event.model_dump(by_alias=True))
+    eventdb.id = id
+    eventdb.username_update = user.username
+    return EventService.update(item=eventdb)
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_event(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
+    EventService.delete(id=id)
+    return None

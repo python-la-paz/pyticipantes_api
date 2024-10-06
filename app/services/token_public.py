@@ -14,8 +14,9 @@ TIME_EXPIRES = configuration.APP_TOKEN_EXPIRES
 
 
 class TokenPublicService:
-    @staticmethod
-    def create(item: Token):
+    TABLE = db.token_public
+    @classmethod
+    def create(cls, item: Token):
         item.date_insert = datetime.now(timezone.utc)
         item.disabled = False
         if hasattr(item, "date_update"):
@@ -26,15 +27,30 @@ class TokenPublicService:
             delattr(item, "username_update")
         jti = str(uuid.uuid4())
         expires = datetime.now(timezone.utc) + timedelta(minutes=TIME_EXPIRES)
-        payload = {"sub": item.username, "exp": expires, "jti": jti}
+        payload = { "exp": expires, "jti": jti}
         token = jwt.encode(payload, SECRET, algorithm=configuration.APP_TOKEN_ALGORITHM)
         item.jti = jti
         item.expires = expires
-        ret = db.token_public.insert_one(item.model_dump(by_alias=True))
+        ret = cls.TABLE.insert_one(item.model_dump(by_alias=True))
         return ret, token
+    
+    @classmethod
+    def create_mirror(cls, item:Token):
+        item.date_insert = datetime.now(timezone.utc)
+        item.disabled = False
+        if hasattr(item, "date_update"):
+            delattr(item, "date_update")
+        if hasattr(item, "id"):
+            delattr(item, "id")
+        if hasattr(item, "username_update"):
+            delattr(item, "username_update")
+        expires = datetime.now(timezone.utc) + timedelta(minutes=TIME_EXPIRES)
+        item.expires = expires
+        ret = cls.TABLE.insert_one(item.model_dump(by_alias=True))
+        return ret
 
-    @staticmethod
-    def delete_by_jti(jti: str):
+    @classmethod
+    def delete_by_jti(cls, jti: str):
         ret = db.token_public.find_one_and_update(
             {"jti": jti, "disabled": False},
             {"$set": {"disabled": True, "date_update": datetime.now(timezone.utc)}},
@@ -42,8 +58,8 @@ class TokenPublicService:
         )
         return ret
 
-    @staticmethod
-    def validate_token(token: str):
+    @classmethod
+    def validate_token(cls, token: str):
         try:
             payload = jwt.decode(
                 token, SECRET, algorithms=[configuration.APP_TOKEN_ALGORITHM]
@@ -51,8 +67,8 @@ class TokenPublicService:
             ret = TokenPublicService.get_by_jti(payload.get("jti"))
             if ret is None:
                 return False, None
-            username = username = payload.get("sub")
-            activeUser = UserService.get_user_public(username)
+            username = ret.username
+            activeUser = UserService.get_user_by_username(username)
             if activeUser is None:
                 TokenPublicService.delete_by_jti(payload.get("jti"))
                 return False, None
@@ -60,7 +76,9 @@ class TokenPublicService:
         except JWTError:
             return None, None
 
-    @staticmethod
-    def get_by_jti(jti: str):
-        ret = db.token_public.find_one({"jti": jti, "disabled": False})
-        return ret
+    @classmethod
+    def get_by_jti(cls, jti: str) -> Token | None:
+        ret = cls.TABLE.find_one({"jti": jti, "disabled": False})
+        if ret is not None:
+            return Token(**ret)
+        return None

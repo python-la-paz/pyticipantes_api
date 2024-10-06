@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 from app.utils import PyObjectId
 
-class Event(BaseModel):
-    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+
+class EventAPI(BaseModel):
     title: str
     description: str
     date: datetime
@@ -20,6 +20,9 @@ class Event(BaseModel):
     price: Optional[float] = 0.0
     currency: Optional[str] = "USD"
     tags: Optional[List[str]] = []
+
+class Event(EventAPI):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
 
 
 class EventInDB(Event):

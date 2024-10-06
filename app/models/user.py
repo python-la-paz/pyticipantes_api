@@ -17,7 +17,18 @@ class User(BaseModel):
     family_name: Optional[str] = None
     disabled: Optional[bool] = False
     admin: Optional[bool] = False
+    birthday: Optional[datetime] = None
+    gender: Optional[str] = None
+    dni: Optional[str] = None
+    profession: Optional[str] = None
+    place_profession: Optional[str] = None
+    residence: Optional[str] = None
+    level_programming: Optional[int] = 0
+    phone: Optional[str] = None
 
+class UserAPI(User):
+    """Model for USER in API operations extends from User"""
+    data_complete: Optional[bool] = False
 
 class UserInDB(User):
     """Model for USER in database storage extends from User"""

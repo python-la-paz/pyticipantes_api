@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 from pymongo.collection import ReturnDocument
@@ -23,7 +23,7 @@ class PageService:
         Returns:
             Page | None: Page inserted or None if slug exists
         """
-        item.date_insert = datetime.utcnow()
+        item.date_insert = datetime.now(timezone.utc)
         item.disabled = False
         if hasattr(item, "date_update"):
             delattr(item, "date_update")
@@ -56,7 +56,7 @@ class PageService:
             delattr(item, "username_insert")
         if hasattr(item, "disabled"):
             delattr(item, "disabled")
-        item.date_update = datetime.utcnow()
+        item.date_update = datetime.now(timezone.utc)
         ret = cls.get_by_slug(item.slug)
         if ret is None or item.id == ret.id:
             ret = cls.TABLE.find_one_and_update(
@@ -81,7 +81,7 @@ class PageService:
         Returns:
             Page | None: Page deleted or None if not found or already deleted
         """
-        item.date_update = datetime.utcnow()
+        item.date_update = datetime.now(timezone.utc)
         ret = cls.TABLE.find_one_and_update(
             {"_id": item.id, "disabled": False},
             {

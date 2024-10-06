@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from jose import jws
 from pymongo.collection import ReturnDocument
 
@@ -20,12 +20,12 @@ class TokenService:
         """Create a new token in database
 
         Args:
-            item (Token): Token to insert in database, required 'email'
+            item (Token): Token to insert in database, required 'username'
 
         Returns:
             str : Token created (JWS string)
         """
-        item.date_insert = datetime.utcnow()
+        item.date_insert = datetime.now(timezone.utc)
         item.disabled = False
         if hasattr(item, "date_update"):
             delattr(item, "date_update")
@@ -35,7 +35,7 @@ class TokenService:
             delattr(item, "username_update")
         unique_id = str(uuid.uuid4())
 
-        payload = {"email": item.email, "current": current(), "jti": unique_id}
+        payload = {"current": current(), "jti": unique_id}
         token = jws.sign(
             payload, SECRET, algorithm=configuration.APP_TOKEN_ALGORITHM
         )
@@ -44,19 +44,19 @@ class TokenService:
         return TokenUser(token=token, jti=unique_id)
 
     @classmethod
-    def get_by_jti_and_email(cls, jti: str, email: str) -> Token | None:
+    def get_by_jti_and_username(cls, jti: str, username: str) -> Token | None:
         """
-            Get a token by jti and email in database
+            Get a token by jti and username in database
 
         Args:
             jti (str): JTI to search in database
-            email (str): Email to search in database
+            username (str): username to search in database
         
         Returns:
             Token | None: Token found or None
         """
         find = cls.TABLE.find_one(
-            {"jti": jti, "email": email, "disabled": False}
+            {"jti": jti, "username": username, "disabled": False}
         )
         if find is not None:
             return Token(**find)
@@ -93,16 +93,16 @@ class TokenService:
         return find
 
     @classmethod
-    def get(cls, email: str) -> list[Token]:
-        """Get all tokens by email in database
+    def get(cls, username: str) -> list[Token]:
+        """Get all tokens by username in database
 
         Args:
-            email (str): Email to search in database
+            username (str): username to search in database
 
         Returns:
             list[Token]: List of tokens found
         """
-        finds = cls.TABLE.find({"disabled": False, "email": email})
+        finds = cls.TABLE.find({"disabled": False, "username": username})
         items = []
         for find in finds:
             items.append(Token(**find))
@@ -110,10 +110,10 @@ class TokenService:
 
     @classmethod
     def search(cls, item: Token) -> list[Token]:
-        """Search tokens by email and jti in database
+        """Search tokens by username and jti in database
 
         Args:
-            item (Token): Token to search in database, required 'email' and 'jti'
+            item (Token): Token to search in database, required 'username' and 'jti'
 
         Returns:
             list[Token]: List of tokens found in database
@@ -122,7 +122,7 @@ class TokenService:
             {
                 "$and": [
                     {"disabled": False},
-                    {"email": item.email},
+                    {"username": item.username},
                     {"jti": {"$regex": item.jti}},
                 ]
             }
@@ -134,14 +134,14 @@ class TokenService:
 
     @classmethod
     def delete(cls, item: Token) -> None:
-        """Delete a token in database by id and email
+        """Delete a token in database by id and username
 
         Args:
-            item (Token): Token to delete in database, required 'id' and 'email'
+            item (Token): Token to delete in database, required 'id' and 'username'
         """
-        item.date_update = datetime.utcnow()
+        item.date_update = datetime.now(timezone.utc)
         ret = cls.TABLE.find_one_and_update(
-            {"_id": item.id, "email": item.email, "disabled": False},
+            {"_id": item.id, "username": item.username, "disabled": False},
             {
                 "$set": {
                     "disabled": True,
