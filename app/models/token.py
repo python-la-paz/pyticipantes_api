@@ -9,10 +9,11 @@ from app.utils import PyObjectId
 
 
 class Token(BaseModel):
-    """Model for TOKEN in database, used in API operations, require email and token"""
+    """Model for TOKEN in database, used in API operations, require username and token"""
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
-    email: str
-    jti: str
+    username: str
+    jti: Optional[str] = None
+    expires: Optional[datetime] = None
     disabled: Optional[bool] = False
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None

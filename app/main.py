@@ -3,11 +3,13 @@ from typing import Optional
 from fastapi import Depends, FastAPI, Request, status
 from fastapi.openapi.docs import get_redoc_html, get_swagger_ui_html
 from fastapi.openapi.utils import get_openapi
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from starlette.middleware.sessions import SessionMiddleware
+
 from app.auth.access import get_actual_user
 from app.core import configuration
-from app.routers import oauth_google, users, token, page, page_render
+from app.routers import event, oauth_google, page, page_render, token, users
+from app.routers.public import oauth_google as public_oauth_google
 from app.services.page import PageService
 
 TITLE = configuration.APP_TITLE
@@ -67,4 +69,6 @@ app.include_router(oauth_google.router, prefix="/api/google", tags=["Security Go
 app.include_router(users.router, prefix="/api/users", tags=["Users"])
 app.include_router(token.router, prefix="/api/token", tags=["Token"])
 app.include_router(page.router, prefix="/api/pages", tags=["Pages"])
+app.include_router(event.router, prefix="/api/event", tags=["Events"])
 app.include_router(page_render.router, prefix="/pages", tags=["Pages"])
+app.include_router(public_oauth_google.router, prefix="/api/public/google", tags=["Public"])

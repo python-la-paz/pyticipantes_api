@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pymongo.collection import ReturnDocument
 
@@ -9,9 +9,11 @@ from app.utils import PyObjectId
 
 class UserService:
     """Service for USERS in database operations"""
+
     TABLE = db.user
+
     @classmethod
-    def insert_or_update_user(cls, user: UserInDB) -> PyObjectId | None:
+    def insert_or_update_user(cls, user: UserInDB) -> UserInDB | None:
         """Insert or update user in database
 
         Args:
@@ -24,9 +26,11 @@ class UserService:
             delattr(user, "id")
         find = UserService.get_user_by_email(user.email)
         if find is None:
-            user.date_insert = datetime.utcnow()
+            user.date_insert = datetime.now(timezone.utc)
+            user.username = user.email
             ret = cls.TABLE.insert_one(user.model_dump(by_alias=True))
-            return ret.inserted_id
+            returned = cls.TABLE.find_one({"_id": ret.inserted_id})
+            return UserInDB(**returned)
         else:
             if hasattr(user, "date_insert"):
                 delattr(user, "date_insert")
@@ -34,14 +38,14 @@ class UserService:
                 delattr(user, "admin")
             if hasattr(user, "username"):
                 delattr(user, "username")
-            user.date_update = datetime.utcnow()
+            user.date_update = datetime.now(timezone.utc)
             user.disabled = find.disabled
             ret = cls.TABLE.find_one_and_update(
                 {"email": user.email},
                 {"$set": user.model_dump(by_alias=True)},
                 return_document=ReturnDocument.AFTER,
             )
-            return UserInDB(**ret).id
+            return UserInDB(**ret)
 
     @classmethod
     def get_user_by_email(cls, email: str) -> UserInDB | None:

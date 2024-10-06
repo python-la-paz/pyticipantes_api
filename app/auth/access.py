@@ -7,6 +7,7 @@ from jose import JWSError, jws
 
 from app.core import configuration
 from app.models.token import Token
+from app.services import TokenPublicService
 from app.models.user import UserInDB
 from app.services.token import TokenService
 from app.services.user import UserService
@@ -86,3 +87,17 @@ async def get_api_key(api_key: str = Security(api_key_header)) -> UserInDB:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Token can not be verified",
         )
+
+
+async def get_api_key_public(api_key: str = Security(api_key_header)):
+    api_key = api_key.replace("Bearer ", "", 1)
+    status_ret, ret = TokenPublicService.validate_token(api_key)
+    if status_ret is None and ret is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Malformed Token"
+        )
+    if status_ret == False:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token"
+        )
+    return ret
