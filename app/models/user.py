@@ -18,7 +18,7 @@ class User(BaseModel):
     disabled: Optional[bool] = False
     admin: Optional[bool] = False
     birthday: Optional[datetime] = None
-    gender: Optional[str] = None
+    gender: Optional[PyObjectId] = None
     dni: Optional[str] = None
     profession: Optional[str] = None
     place_profession: Optional[str] = None

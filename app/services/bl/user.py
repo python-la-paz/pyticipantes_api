@@ -1,11 +1,13 @@
-from app.models.user import User, UserAPI
-from app.services.user import UserService
+from typing import List
+
+from app.models import Gender, User, UserAPI, UserInDB
+from app.services import GenderService, UserService
 
 
 class UserProfileService:
-    
+
     @classmethod
-    def get_public_user(cls, username:str) -> User | None:
+    def get_public_user(cls, username: str) -> User | None:
         """Get public user profile by username
 
         Args:
@@ -20,15 +22,15 @@ class UserProfileService:
         find = UserAPI(**find.model_dump(by_alias=True))
         find.data_complete = cls.validate_data(find)
         return find
-        
+
     @classmethod
     def validate_data(cls, user: UserAPI) -> bool:
         """Validate user additional data complete
         Args:
             user (UserAPI): User to validate
-        Returns:        
+        Returns:
             bool: True if data is complete, False if not
-        """ 
+        """
         if not user.birthday:
             return False
         if not user.gender:
@@ -46,7 +48,7 @@ class UserProfileService:
         if not user.phone:
             return False
         return True
-    
+
     @classmethod
     def update_user(cls, user: UserAPI) -> UserAPI | None:
         """Update user profile
@@ -68,10 +70,36 @@ class UserProfileService:
         find.residence = user.residence
         find.level_programming = user.level_programming
         find.phone = user.phone
-        
+
+        validate_info = cls.validate_fields(find)
+        if not validate_info:
+            return None
         updated = UserService.update_extra_info(find)
         if not updated:
             return None
         updated = UserAPI(**updated.model_dump(by_alias=True))
         updated.data_complete = cls.validate_data(updated)
         return updated
+
+    @classmethod
+    def validate_fields(cls, user: UserInDB) -> bool:
+        """Validate user fields
+
+        Args:
+            user (UserInDB): User to validate
+
+        Returns:
+            bool: True if fields are valid, False if not
+        """
+        gender = GenderService.get(user.gender)
+        if not gender:
+            return False
+
+    @classmethod
+    def list_gender(cls) -> List[Gender]:
+        """Get list of genders
+
+        Returns:
+            List of genders: List
+        """
+        return GenderService.list()
