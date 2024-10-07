@@ -4,6 +4,7 @@ from pymongo.collection import ReturnDocument
 
 from app.core.database import db
 from app.models import Event, EventInDB
+from app.models.event import EventRegister, EventRegisterInDB
 from app.utils import PyObjectId
 
 
@@ -11,6 +12,7 @@ class EventService:
     """Service for EVENTS in database operations"""
 
     TABLE = db.event
+    TABLE_REGISTER = db.event_register
 
     @classmethod
     def get(cls, id: PyObjectId) -> Event | None:
@@ -123,3 +125,81 @@ class EventService:
         )
         items = [Event(**find) for find in finds]
         return items
+
+    @classmethod
+    def list_public_events(
+        cls, page_number: int = 0, n_per_page: int = 100
+    ) -> List[Event]:
+        finds = (
+            cls.TABLE.find({"disabled": False, "public": True})
+            .skip(((page_number - 1) * n_per_page) if page_number > 0 else 0)
+            .limit(n_per_page)
+        )
+        items = [Event(**find) for find in finds]
+        return items
+
+    @classmethod
+    def get_public_no_finished(cls, id: PyObjectId) -> Event | None:
+        search = cls.TABLE.find_one(
+            {"_id": id, "disabled": False, "public": True, "finished": False}
+        )
+        if search is not None:
+            return Event(**search)
+        else:
+            return None
+
+    @classmethod
+    def is_full(cls, event: Event) -> bool:
+        if not event.quota:
+            return False, 0
+        count = cls.TABLE_REGISTER.count_documents(
+            {
+                "event": event.id,
+                "disabled": False,
+                "status": {"$in": ["pending", "accepted"]},
+            }
+        )
+        if count >= event.quota:
+            return True, count
+        return False, count
+
+    @classmethod
+    def is_already_registered(cls, event: Event, user: PyObjectId) -> bool:
+        count = cls.TABLE_REGISTER.count_documents(
+            {
+                "event": event.id,
+                "user": user,
+                "disabled": False,
+                "status": {"$in": ["pending", "accepted"]},
+            }
+        )
+        return count > 0
+
+    @classmethod
+    def get_register(cls, id: PyObjectId) -> EventRegister | None:
+        """Get a event register by id in database
+
+        Args:
+            id (PyObjectId): ObjectId of event register to search in database
+
+        Returns:
+            EventRegister | None: Event register found or None
+        """
+        search = cls.TABLE_REGISTER.find_one({"_id": id, "disabled": False})
+        if search is not None:
+            return EventRegister(**search)
+        else:
+            return None
+
+    @classmethod
+    def register_in_event(cls, event: EventRegisterInDB) -> Event | None:
+        if hasattr(event, "id"):
+            delattr(event, "id")
+        if hasattr(event, "date_update"):
+            delattr(event, "date_update")
+        if hasattr(event, "username_update"):
+            delattr(event, "username_update")
+        event.date_insert = datetime.now(timezone.utc)
+        inserted = cls.TABLE_REGISTER.insert_one(event.model_dump(by_alias=True))
+        ret = cls.get_register(inserted.inserted_id)
+        return ret

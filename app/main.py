@@ -13,6 +13,7 @@ from app.routers import event, oauth_google, page, page_render, token, users
 from app.routers.public import oauth_google as public_oauth_google
 from app.routers.public import user as public_user
 from app.routers.public import gender as public_gender
+from app.routers.public import event as public_event
 from app.services.page import PageService
 
 TITLE = configuration.APP_TITLE
@@ -82,3 +83,4 @@ app.include_router(page_render.router, prefix="/pages", tags=["Pages"])
 app.include_router(public_oauth_google.router, prefix="/api/public/google", tags=["Public"])
 app.include_router(public_user.router, prefix="/api/public/user", tags=["Public"])
 app.include_router(public_gender.router, prefix="/api/public/gender", tags=["Public"])
+app.include_router(public_event.router, prefix="/api/public/event", tags=["Public"])

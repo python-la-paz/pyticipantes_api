@@ -7,7 +7,7 @@ from app.services import GenderService, UserService
 class UserProfileService:
 
     @classmethod
-    def get_public_user(cls, username: str) -> User | None:
+    def get_public_user(cls, username: str) -> UserAPI | None:
         """Get public user profile by username
 
         Args:
@@ -94,6 +94,7 @@ class UserProfileService:
         gender = GenderService.get(user.gender)
         if not gender:
             return False
+        return True
 
     @classmethod
     def list_gender(cls) -> List[Gender]:
