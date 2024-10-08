@@ -30,8 +30,16 @@ async def get_events(
     return search
 
 
+@router.get("/{id}", response_model=Event, status_code=status.HTTP_200_OK)
+async def get_event_by_id(
+    id: PyObjectId,
+):
+    event = EventRegistration.get_public_event(id=id)
+    return event
+
+
 @router.post(
-    "/register/{id}", response_model=EventRegister, status_code=status.HTTP_201_CREATED
+    "/{id}/register", response_model=EventRegister, status_code=status.HTTP_201_CREATED
 )
 async def register_in_event(
     id: PyObjectId,
@@ -39,7 +47,7 @@ async def register_in_event(
     additional_info: List[str] = [],
     user: Token = Depends(get_api_key_public),
 ):
-    event_register,error = EventRegistration.register_in_event(
+    event_register, error = EventRegistration.register_in_event(
         id=id,
         username=user.username,
         document_upload=document_upload,
@@ -51,3 +59,14 @@ async def register_in_event(
             content=Result(message=error).model_dump(),
         )
     return event_register
+
+
+@router.get(
+    "/{id}/register", response_model=List[EventRegister], status_code=status.HTTP_200_OK
+)
+async def get_event_registers(
+    id: PyObjectId,
+    user: Token = Depends(get_api_key_public),
+):
+    registers = EventRegistration.get_registers(id=id, username=user.username)
+    return registers

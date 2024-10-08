@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 from typing import List
+
 from pymongo.collection import ReturnDocument
 
 from app.core.database import db
-from app.models import Event, EventInDB
-from app.models.event import EventRegister, EventRegisterInDB
+from app.models import Event, EventInDB, EventRegister, EventRegisterInDB
 from app.utils import PyObjectId
 
 
@@ -139,6 +139,11 @@ class EventService:
         return items
 
     @classmethod
+    def get_public_event(cls, id: PyObjectId) -> Event:
+        find = cls.TABLE.find_one({"_id": id, "disabled": False, "public": True})
+        return Event(**find)
+
+    @classmethod
     def get_public_no_finished(cls, id: PyObjectId) -> Event | None:
         search = cls.TABLE.find_one(
             {"_id": id, "disabled": False, "public": True, "finished": False}
@@ -203,3 +208,11 @@ class EventService:
         inserted = cls.TABLE_REGISTER.insert_one(event.model_dump(by_alias=True))
         ret = cls.get_register(inserted.inserted_id)
         return ret
+
+    @classmethod
+    def get_registers(cls, id: PyObjectId, user: PyObjectId) -> List[EventRegister]:
+        finds = cls.TABLE_REGISTER.find(
+            {"disabled": False, "event": id, "user": user}
+        )
+        items = [EventRegister(**find) for find in finds]
+        return items

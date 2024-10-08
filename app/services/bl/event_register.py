@@ -1,8 +1,7 @@
 from datetime import datetime
 from typing import List, Tuple
 
-from app.models import Event
-from app.models.event import EventRegisterInDB
+from app.models import Event, EventRegister, EventRegisterInDB
 from app.services.bl.user import UserProfileService
 from app.services.event import EventService
 from app.utils import PyObjectId
@@ -18,6 +17,11 @@ class EventRegistration:
         finds = EventService.list_public_events(
             page_number=page_number, n_per_page=n_per_page
         )
+        return finds
+    
+    @classmethod
+    def get_public_event(cls, id: PyObjectId) -> Event:
+        finds = EventService.get_public_event(id)
         return finds
 
     @classmethod
@@ -69,3 +73,11 @@ class EventRegistration:
         if register is None:
             return None, "Error registering"
         return register, "Success"
+
+    @classmethod
+    def get_registers(cls, id: PyObjectId, username: str) -> List[EventRegister]:
+        user = UserProfileService.get_public_user(username)
+        if not user:
+            return []
+        registers = EventService.get_registers(id,user.id)
+        return registers
