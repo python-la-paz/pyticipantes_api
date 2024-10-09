@@ -1,14 +1,13 @@
 from fastapi import APIRouter, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 
-from app.models.result import Result
+from app.models import Page, Result
 from app.services.page import PageService
-from fastapi.responses import HTMLResponse
 
 router = APIRouter()
 
 
-@router.get("/{slug}")
+@router.get("/{slug}", response_model=Page, status_code=status.HTTP_200_OK)
 async def get_page(slug: str):
     """Get a page by slug and return HTMLResponse
 
@@ -16,10 +15,10 @@ async def get_page(slug: str):
         slug (str): Page slug to search in database
     """
     search = PageService.get_by_slug(slug=slug)
-    if search is not None:
-        return HTMLResponse(content=search.html, status_code=status.HTTP_200_OK)
-    else:
+    if search is None:
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content=Result(message="Page not Found").model_dump(),
         )
+    else:
+        return search

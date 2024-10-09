@@ -29,14 +29,18 @@ async def get_page(
 
 @router.post(
     "",
-    response_model=Page,
+    responses={
+        status.HTTP_200_OK: {"model": Page},
+        status.HTTP_400_BAD_REQUEST: {"model": Result},
+        status.HTTP_404_NOT_FOUND: {"model": Result},
+    },
     status_code=status.HTTP_201_CREATED,
 )
 async def insert_page(
     title: str = Form(),
     slug: str = Form(),
     htmlarea: str = Form(
-        default="""<!DOCTYPE html>\n<html>\n\t<body>\n\t</body>\n</html>"""
+        default="""# Markdown Title"""
     ),
     user: UserInDB = Depends(get_actual_user),
 ):
@@ -45,6 +49,11 @@ async def insert_page(
     itemDB = PageInDB(**item.model_dump(by_alias=True))
     itemDB.username_insert = user.email
     inserted = PageService.insert(item=itemDB)
+    if inserted is None:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=Result(message="Page Not Inserted already exists").model_dump(),
+        )
     return inserted
 
 
@@ -61,7 +70,7 @@ async def update_page(
     title: str = Form(),
     slug: str = Form(),
     htmlarea: str = Form(
-        default="""<!DOCTYPE html>\n<html>\n\t<body>\n\t</body>\n</html>"""
+        default="""# Markdown Title"""
     ),
     user: UserInDB = Depends(get_actual_user),
 ):

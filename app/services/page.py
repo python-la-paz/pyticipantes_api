@@ -34,7 +34,7 @@ class PageService:
 
         ret = cls.get_by_slug(item.slug)
         if ret is None:
-            inserted = cls.TABLE.insert_one(item.dict(by_alias=True))
+            inserted = cls.TABLE.insert_one(item.model_dump(by_alias=True))
             ret = cls.get(PyObjectId(inserted.inserted_id))
             return ret
         else:
