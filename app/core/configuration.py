@@ -11,10 +11,10 @@ APP_SECRET_TOKENS = os.getenv("APP_SECRET_TOKENS", "43e36b7672fadda3df4b158f414c
 APP_TOKEN_ALGORITHM="HS256"
 APP_ENVIRONMENT=os.getenv("APP_ENVIRONMENT", "dev")
 APP_TOKEN_EXPIRES = 24 * 60 * 10
-# MAX_SIZE_IMAGE_MB = int(os.getenv("MAX_SIZE_IMAGE_MB", 5))
-# APP_GOOGLE_CLOUD_STORAGE = os.getenv(
-#     "APP_GOOGLE_CLOUD_STORAGE", "./../../keys/cloud-storage.json"
-# )
-# APP_GOOGLE_CLOUD_STORAGE_BUCKET = os.getenv(
-#     "APP_GOOGLE_CLOUD_STORAGE_BUCKET", "cookbookbo"
-# )
+MAX_SIZE_IMAGE_MB = int(os.getenv("MAX_SIZE_IMAGE_MB", 5))
+APP_GOOGLE_CLOUD_STORAGE = os.getenv(
+    "APP_GOOGLE_CLOUD_STORAGE", "./../../keys/cloud-storage.json"
+)
+APP_GOOGLE_CLOUD_STORAGE_BUCKET = os.getenv(
+    "APP_GOOGLE_CLOUD_STORAGE_BUCKET", "bucket"
+)
