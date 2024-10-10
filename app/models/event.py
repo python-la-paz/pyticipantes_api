@@ -38,6 +38,12 @@ class EventInDB(Event):
     username_insert: Optional[str] = None
     username_update: Optional[str] = None
 
+
+class FileBlob(BaseModel):
+    name: str
+    url: str
+    content_type: str
+
 class EventRegister(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
     event: PyObjectId
@@ -46,7 +52,7 @@ class EventRegister(BaseModel):
     seat: Optional[int] = 0
     status: Optional[str] = "pending" # pending, accepted, rejected
     note: Optional[str] = None
-    document_upload: Optional[str] = None
+    document_upload: Optional[FileBlob] = None
     additional_info: Optional[List[str]] = []
 
 class EventRegisterInDB(EventRegister):
