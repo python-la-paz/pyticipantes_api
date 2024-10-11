@@ -4,3 +4,4 @@ from .token import Token, TokenUser
 from .result import Result
 from .gender import Gender, GenderInDB
 from .page import Page, PageInDB
+from .profession import Profession, ProfessionInDB
