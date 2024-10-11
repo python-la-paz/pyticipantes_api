@@ -1,7 +1,7 @@
 from typing import List
 
-from app.models import Gender, User, UserAPI, UserInDB
-from app.services import GenderService, UserService
+from app.models import Gender, User, UserAPI, UserInDB, Profession
+from app.services import GenderService, UserService, ProfessionService
 
 
 class UserProfileService:
@@ -104,3 +104,12 @@ class UserProfileService:
             List of genders: List
         """
         return GenderService.list()
+    
+    @classmethod
+    def list_profession(cls) -> List[Profession]:
+        """Get list of professions
+
+        Returns:
+            List of professions: List
+        """
+        return ProfessionService.list()
