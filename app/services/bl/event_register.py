@@ -1,10 +1,15 @@
 from datetime import datetime
 from typing import List, Tuple
 
+from fastapi import UploadFile
+
+from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import Event, EventRegister, EventRegisterInDB
+from app.models.event import FileBlob
 from app.services.bl.user import UserProfileService
 from app.services.event import EventService
-from app.utils import PyObjectId
+from app.utils import PyObjectId, google_cloud_storage
+from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 
 
 class EventRegistration:
@@ -18,7 +23,7 @@ class EventRegistration:
             page_number=page_number, n_per_page=n_per_page
         )
         return finds
-    
+
     @classmethod
     def get_public_event(cls, id: PyObjectId) -> Event:
         finds = EventService.get_public_event(id)
@@ -29,7 +34,8 @@ class EventRegistration:
         cls,
         id: PyObjectId,
         username: str,
-        document_upload: str | None,
+        file: UploadFile,
+        size_image: int,
         additional_info: List[str],
     ) -> Tuple[EventRegisterInDB | None, str]:
         user = UserProfileService.get_public_user(username)
@@ -54,19 +60,41 @@ class EventRegistration:
         if already:
             return None, "User already registered"
 
-        if event.document_required and not document_upload:
-            return None, "Document required"
+        blob = None
+        if event.document_required:
+            if not file.content_type in CONTENT_TYPES_IMAGE:
+                return (
+                    False,
+                    f"No valid content type, valid types: {','.join(CONTENT_TYPES_VALID)}",
+                )
+
+            if size_image > MAX_SIZE_IMAGE_MB * 1024 * 1024:
+                return (
+                    False,
+                    f"Max size enabled: {MAX_SIZE_IMAGE_MB} MB",
+                )
+
+            result, filename, url, content_type = google_cloud_storage.upload_file(
+                f"{event.id}-{user.id}", file.filename, file.content_type, file.file
+            )
+            # delete old image if exists after  upload new image
+
+            if result:
+                blob = FileBlob(name=filename, url=url, content_type=content_type)
 
         if event.additional_info and not additional_info:
             return None, "Additional info required"
 
+        if len(additional_info) != len(event.additional_info):
+            return None, "Responses are not complete"
+        
         register = EventRegisterInDB(
             event=event.id,
             user=user.id,
             date=datetime.now(),
             seat=seat + 1,
             status="pending" if event.automatic else "accepted",
-            document_upload=document_upload if event.document_required else None,
+            document_upload=blob if event.document_required else None,
             additional_info=additional_info if event.additional_info else [],
         )
         register = EventService.register_in_event(register)
@@ -79,5 +107,5 @@ class EventRegistration:
         user = UserProfileService.get_public_user(username)
         if not user:
             return []
-        registers = EventService.get_registers(id,user.id)
+        registers = EventService.get_registers(id, user.id)
         return registers

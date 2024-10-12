@@ -32,12 +32,37 @@ class UserService:
             returned = cls.TABLE.find_one({"_id": ret.inserted_id})
             return UserInDB(**returned)
         else:
+            if hasattr(user, "given_name"):
+                delattr(user, "given_name")
+            if hasattr(user, "family_name"):
+                delattr(user, "family_name")
+                
             if hasattr(user, "date_insert"):
                 delattr(user, "date_insert")
             if hasattr(user, "admin"):
                 delattr(user, "admin")
             if hasattr(user, "username"):
                 delattr(user, "username")
+            if hasattr(user, "email"):
+                delattr(user, "email")
+
+            if hasattr(user, "birthday"):
+                delattr(user, "birthday")
+            if hasattr(user, "gender"):
+                delattr(user, "gender")
+            if hasattr(user, "dni"):
+                delattr(user, "dni")
+            if hasattr(user, "profession"):
+                delattr(user, "profession")
+            if hasattr(user, "place_profession"):
+                delattr(user, "place_profession")
+            if hasattr(user, "residence"):
+                delattr(user, "residence")
+            if hasattr(user, "level_programming"):
+                delattr(user, "level_programming")
+            if hasattr(user, "phone"):
+                delattr(user, "phone")
+
             user.date_update = datetime.now(timezone.utc)
             user.disabled = find.disabled
             ret = cls.TABLE.find_one_and_update(
