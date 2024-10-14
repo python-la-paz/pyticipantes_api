@@ -1,0 +1,31 @@
+version: '3.9' 
+volumes:
+  app_media: {}
+  db_data: {}
+services:
+  app:
+    image: gcr.io/jevillanueva/pythonlapaz/pyticipantes:latest
+    restart: always
+    expose:
+      - "8000"
+    volumes:
+      - keys:/app/keys
+    env_file:
+      - .env
+    networks:
+      - web
+      - internal
+    labels:
+      - traefik.http.middlewares.limit.buffering.maxRequestBodyBytes=20971520
+      - traefik.http.middlewares.limit.buffering.memRequestBodyBytes=20971520
+      - traefik.http.middlewares.limit.buffering.maxResponseBodyBytes=20971520
+      - traefik.http.middlewares.limit.buffering.memResponseBodyBytes=20971520
+      - traefik.http.routers.${TRAEFIK_ROUTE}.rule=Host(${TRAEFIK_APP_DOMAIN})
+      - traefik.http.routers.${TRAEFIK_ROUTE}.tls=true
+      - traefik.http.routers.${TRAEFIK_ROUTE}.tls.certresolver=lets-encrypt
+      - traefik.port=${TRAEFIK_APP_PORT}
+networks:
+  web:
+    external: true
+  internal:
+    external: false
