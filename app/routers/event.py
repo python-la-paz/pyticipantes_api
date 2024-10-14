@@ -1,12 +1,13 @@
 from typing import List, Optional
-from fastapi import APIRouter, Depends, status
+
+from fastapi import APIRouter, Depends, UploadFile, status
 
 from app.auth.access import get_actual_user
-from app.models import Event, UserInDB, EventInDB
+from app.models import Event, EventInDB, FileBlob, UserInDB
 from app.models.event import EventAPI
 from app.services import EventService
+from app.utils import google_cloud_storage
 from app.utils.mongo_validator import PyObjectId
-
 
 router = APIRouter()
 
@@ -51,3 +52,20 @@ async def update_event(
 async def delete_event(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
     EventService.delete(id=id)
     return None
+
+@router.post("/{id}/image", response_model=Event, status_code=status.HTTP_201_CREATED)
+async def create_event(id: PyObjectId, image: UploadFile , user: UserInDB = Depends(get_actual_user)):
+    eventdb = EventService.get(id=id)
+    if eventdb is None:
+        raise Exception("Event not found")
+    result, filename, url, content_type = google_cloud_storage.upload_file(
+            f"Event:{eventdb.id}", image.filename, image.content_type, image.file, public=True
+        )
+    if result:
+        blob = FileBlob(name=filename, url=url, content_type=content_type)
+        eventdb.image = blob
+    else:
+        raise Exception("Error uploading image")
+    eventdb = EventInDB(**eventdb.model_dump(by_alias=True))
+    eventdb.username_update = user.username
+    return EventService.update(item=eventdb)

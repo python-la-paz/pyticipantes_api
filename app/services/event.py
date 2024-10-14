@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from typing import List
 
+import pymongo
 from pymongo.collection import ReturnDocument
 
 from app.core.database import db
@@ -213,6 +214,6 @@ class EventService:
     def get_registers(cls, id: PyObjectId, user: PyObjectId) -> List[EventRegister]:
         finds = cls.TABLE_REGISTER.find(
             {"disabled": False, "event": id, "user": user}
-        )
+        ).sort("date", pymongo.DESCENDING)
         items = [EventRegister(**find) for find in finds]
         return items
