@@ -1,4 +1,7 @@
-def validateHTTPS(url: str, schema: str = "") -> str:
+from starlette.datastructures import URL
+
+
+def validateHTTPS(url: URL, schema: str = "") -> str:
     """Validate if the url is https or http and return the url with the correct schema
 
     Args:
@@ -12,5 +15,5 @@ def validateHTTPS(url: str, schema: str = "") -> str:
         return url
     else:
         if schema == "https":
-            url = url.replace("http://", "https://", 1)
+            url = url.replace(scheme="https")
         return url
