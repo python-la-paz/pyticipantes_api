@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from app.utils.mongo_validator import PyObjectId
 
-class StatusCode(Enum):
+class StatusCode(str, Enum):
     DEFAULT = "default"
     REGISTER_COMPLETE = "register_complete"
     USER_NOT_FOUND = "user_not_found"

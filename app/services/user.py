@@ -43,8 +43,8 @@ class UserService:
                 delattr(user, "admin")
             if hasattr(user, "username"):
                 delattr(user, "username")
-            if hasattr(user, "email"):
-                delattr(user, "email")
+            # if hasattr(user, "email"):
+            #     delattr(user, "email")
 
             if hasattr(user, "birthday"):
                 delattr(user, "birthday")
