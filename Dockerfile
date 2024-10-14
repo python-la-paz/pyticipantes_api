@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-alpine
 LABEL MAINTAINER="Jonathan Villanueva <me@jevillanueva.dev>"
 RUN apk update && apk add --no-cache python3-dev \
     gcc \
