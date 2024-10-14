@@ -4,3 +4,4 @@ from .token_public import TokenPublicService
 from .token import TokenService
 from .page import PageService
 from .gender import GenderService
+from .profession import ProfessionService
