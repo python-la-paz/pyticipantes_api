@@ -4,7 +4,7 @@ volumes:
   db_data: {}
 services:
   app:
-    image: gcr.io/jevillanueva/pythonlapaz/pyticipantes:latest
+    image: gcr.io/jevillanueva/pythonlapaz/pyticipantes-api:latest
     restart: always
     expose:
       - "8000"
