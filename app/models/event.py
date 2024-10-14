@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
+from app.models.fileblob import FileBlob
 from app.utils import PyObjectId
 
 
@@ -12,7 +13,7 @@ class EventAPI(BaseModel):
     date: datetime
     location: str
     location_map: Optional[str] = None
-    image: Optional[str] = None
+    image: Optional[FileBlob] = None
     document: Optional[str] = None
     document_type: Optional[str] = None
     link: Optional[str] = None
@@ -37,12 +38,6 @@ class EventInDB(Event):
     date_update: Optional[datetime] = None
     username_insert: Optional[str] = None
     username_update: Optional[str] = None
-
-
-class FileBlob(BaseModel):
-    name: str
-    url: str
-    content_type: str
 
 class EventRegister(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)

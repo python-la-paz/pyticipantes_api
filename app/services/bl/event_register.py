@@ -4,8 +4,8 @@ from typing import List, Tuple
 from fastapi import UploadFile
 
 from app.core.configuration import MAX_SIZE_IMAGE_MB
-from app.models import Event, EventRegister, EventRegisterInDB
-from app.models.event import FileBlob
+from app.models import (Event, EventRegister, EventRegisterInDB, FileBlob,
+                        StatusCode)
 from app.services.bl.user import UserProfileService
 from app.services.event import EventService
 from app.utils import PyObjectId, google_cloud_storage
@@ -37,28 +37,28 @@ class EventRegistration:
         file: UploadFile,
         size_image: int,
         additional_info: List[str],
-    ) -> Tuple[EventRegisterInDB | None, str]:
+    ) -> Tuple[EventRegisterInDB | None, str, StatusCode]:
         user = UserProfileService.get_public_user(username)
         if user is None:
-            return None, "User not found"
+            return None, "User not found", StatusCode.USER_NOT_FOUND
 
         if not user.data_complete:
-            return None, "User data not complete"
+            return None, "User data not complete", StatusCode.USER_DATA_NOT_COMPLETE
 
         event = EventService.get_public_no_finished(id=id)
         if event is None:
-            return None, "Event not found"
+            return None, "Event not found", StatusCode.EVENT_NOT_FOUND
 
         if event.date < datetime.now():
-            return None, "Event already finished"
+            return None, "Event already finished", StatusCode.EVENT_ALREADY_FINISHED
 
         full, seat = EventService.is_full(event)
         if full:
-            return None, "Event full"
+            return None, "Event full", StatusCode.EVENT_FULL
 
         already = EventService.is_already_registered(event, user.id)
         if already:
-            return None, "User already registered"
+            return None, "User already registered", StatusCode.USER_ALREADY_REGISTERED
 
         blob = None
         if event.document_required:
@@ -66,12 +66,14 @@ class EventRegistration:
                 return (
                     False,
                     f"No valid content type, valid types: {','.join(CONTENT_TYPES_VALID)}",
+                    StatusCode.NO_VALID_CONTENT_TYPE,
                 )
 
             if size_image > MAX_SIZE_IMAGE_MB * 1024 * 1024:
                 return (
                     False,
                     f"Max size enabled: {MAX_SIZE_IMAGE_MB} MB",
+                    StatusCode.MAX_SIZE_ENABLED,
                 )
 
             result, filename, url, content_type = google_cloud_storage.upload_file(
@@ -83,11 +85,11 @@ class EventRegistration:
                 blob = FileBlob(name=filename, url=url, content_type=content_type)
 
         if event.additional_info and not additional_info:
-            return None, "Additional info required"
+            return None, "Additional info required", StatusCode.ADDITIONAL_INFO_REQUIRED
 
         if len(additional_info) != len(event.additional_info):
-            return None, "Responses are not complete"
-        
+            return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
+
         register = EventRegisterInDB(
             event=event.id,
             user=user.id,
@@ -99,8 +101,8 @@ class EventRegistration:
         )
         register = EventService.register_in_event(register)
         if register is None:
-            return None, "Error registering"
-        return register, "Success"
+            return None, "Error registering", StatusCode.ERROR_REGISTERING
+        return register, "Success", StatusCode.REGISTER_COMPLETE
 
     @classmethod
     def get_registers(cls, id: PyObjectId, username: str) -> List[EventRegister]:

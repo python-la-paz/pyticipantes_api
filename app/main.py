@@ -9,14 +9,15 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.auth.access import get_actual_user
 from app.core import configuration
-from app.routers import event, oauth_google, page, page_render, token, users, gender, profession
-from app.routers.public import oauth_google as public_oauth_google
-from app.routers.public import user as public_user
-from app.routers.public import gender as public_gender
+from app.routers import (event, gender, oauth_google, page, page_render,
+                         profession, token, users)
 from app.routers.public import event as public_event
-from app.services.page import PageService
+from app.routers.public import gender as public_gender
+from app.routers.public import files as public_files
+from app.routers.public import oauth_google as public_oauth_google
 from app.routers.public import profession as public_profession
-
+from app.routers.public import user as public_user
+from app.services.page import PageService
 
 TITLE = configuration.APP_TITLE
 VERSION = configuration.APP_VERSION
@@ -89,4 +90,4 @@ app.include_router(public_user.router, prefix="/api/public/user", tags=["Public"
 app.include_router(public_gender.router, prefix="/api/public/gender", tags=["Public"])
 app.include_router(public_event.router, prefix="/api/public/event", tags=["Public"])
 app.include_router(public_profession.router, prefix="/api/public/profession", tags=["Public"])
-
+app.include_router(public_files.router, prefix="/api/public/files", tags=["Public"])

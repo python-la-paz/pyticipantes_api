@@ -7,6 +7,7 @@ from app.auth.access import get_api_key_public
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import Event, EventRegister, Result, Token
 from app.services.bl import EventRegistration, UserProfileService
+from app.services.messages import MessagesService
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 from app.utils.mongo_validator import PyObjectId
 
@@ -58,17 +59,18 @@ async def register_in_event(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=Result(message="Tamaño de imagen no válido").model_dump(),
         )
-    event_register, error = EventRegistration.register_in_event(
+    event_register, error, status_code = EventRegistration.register_in_event(
         id=id,
         username=user.username,
         file=file,
         size_image=size_image,
         additional_info=additional_info,
     )
+    message = MessagesService.get_by_code(status_code)
     if not event_register:
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content=Result(message=error).model_dump(),
+            content=Result(message=message.message, code=message.code).model_dump(),
         )
     return event_register
 
