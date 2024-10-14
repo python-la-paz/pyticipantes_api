@@ -9,7 +9,7 @@ services:
     expose:
       - "8000"
     volumes:
-      - keys:/app/keys
+      - ./keys:/app/keys
     env_file:
       - .env
     networks:
