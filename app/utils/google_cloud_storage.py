@@ -1,4 +1,4 @@
-'''import os
+import os
 import uuid
 from google.cloud import storage
 from app.core.configuration import (
@@ -42,4 +42,4 @@ def get_file(filename) -> bytes:
         return doc, mime_type
     except Exception as e:
         print(e)
-        return None, None'''
+        return None, None
