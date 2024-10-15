@@ -7,3 +7,4 @@ from .page import Page, PageInDB
 from .profession import Profession, ProfessionInDB
 from .result import Messages, MessagesInDB, StatusCode
 from .fileblob import FileBlob
+from .socialnetwork import SocialNetwork, SocialNetworkInDB
