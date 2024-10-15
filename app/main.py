@@ -10,14 +10,16 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.auth.access import get_actual_user
 from app.core import configuration
 from app.routers import (event, gender, oauth_google, page, page_render,
-                         profession, token, users)
+                         profession, token, users, programminglanguage)
 from app.routers.public import event as public_event
 from app.routers.public import gender as public_gender
 from app.routers.public import files as public_files
 from app.routers.public import oauth_google as public_oauth_google
 from app.routers.public import profession as public_profession
 from app.routers.public import user as public_user
+from app.routers.public import programminglanguage as public_programminglanguage
 from app.services.page import PageService
+
 
 TITLE = configuration.APP_TITLE
 VERSION = configuration.APP_VERSION
@@ -85,9 +87,11 @@ app.include_router(event.router, prefix="/api/event", tags=["Events"])
 app.include_router(page_render.router, prefix="/api/pages", tags=["Pages"])
 app.include_router(gender.router, prefix="/api/gender", tags=["Genders"])
 app.include_router(profession.router, prefix="/api/profession", tags=["Professsion"])
+app.include_router(programminglanguage.router, prefix="/api/programminglanguage", tags=["Programming Language"])
 app.include_router(public_oauth_google.router, prefix="/api/public/google", tags=["Public"])
 app.include_router(public_user.router, prefix="/api/public/user", tags=["Public"])
 app.include_router(public_gender.router, prefix="/api/public/gender", tags=["Public"])
 app.include_router(public_event.router, prefix="/api/public/event", tags=["Public"])
 app.include_router(public_profession.router, prefix="/api/public/profession", tags=["Public"])
 app.include_router(public_files.router, prefix="/api/public/files", tags=["Public"])
+app.include_router(public_programminglanguage.router, prefix="/api/public/programminglanguage", tags=["Public"])
