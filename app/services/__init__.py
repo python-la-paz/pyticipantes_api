@@ -6,3 +6,4 @@ from .page import PageService
 from .gender import GenderService
 from .profession import ProfessionService
 from .socialnetwork import SocialNetworkService
+from .programminglanguage import ProgrammingLanguageService
