@@ -28,6 +28,7 @@ class UserService:
         if find is None:
             user.date_insert = datetime.now(timezone.utc)
             user.username = user.email
+            user.new = True
             ret = cls.TABLE.insert_one(user.model_dump(by_alias=True))
             returned = cls.TABLE.find_one({"_id": ret.inserted_id})
             return UserInDB(**returned)
@@ -62,6 +63,8 @@ class UserService:
                 delattr(user, "level_programming")
             if hasattr(user, "phone"):
                 delattr(user, "phone")
+            if hasattr(user, "new"):
+                delattr(user, "new")
 
             user.date_update = datetime.now(timezone.utc)
             user.disabled = find.disabled

@@ -20,7 +20,7 @@ class User(BaseModel):
     birthday: Optional[datetime] = None
     gender: Optional[PyObjectId] = None
     dni: Optional[str] = None
-    profession: Optional[str] = None
+    profession: Optional[PyObjectId] = None
     place_profession: Optional[str] = None
     residence: Optional[str] = None
     level_programming: Optional[int] = 0
@@ -35,3 +35,4 @@ class UserInDB(User):
     hashed_password: Optional[str] = None
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None
+    new: bool = False
