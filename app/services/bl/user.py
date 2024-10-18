@@ -43,8 +43,6 @@ class UserProfileService:
             return False
         if not user.residence:
             return False
-        if not user.level_programming:
-            return False
         if not user.phone:
             return False
         return True
@@ -74,6 +72,7 @@ class UserProfileService:
         validate_info = cls.validate_fields(find)
         if not validate_info:
             return None
+        find.new = False
         updated = UserService.update_extra_info(find)
         if not updated:
             return None
@@ -94,6 +93,12 @@ class UserProfileService:
         gender = GenderService.get(user.gender)
         if not gender:
             return False
+        profession = ProfessionService.get(user.profession)
+        if not profession:
+            return False
+        if user.level_programming < 0 or user.level_programming > 10:
+            return False
+        
         return True
 
     @classmethod
