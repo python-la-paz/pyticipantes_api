@@ -1,0 +1,72 @@
+[
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cd5"
+        },
+        "name": "Python",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cd6"
+        },
+        "name": "Java",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cd7"
+        },
+        "name": "JavaScript",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cd8"
+        },
+        "name": "TypeScript",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cd9"
+        },
+        "name": "C#",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cda"
+        },
+        "name": "C++",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cdb"
+        },
+        "name": "Go",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cdc"
+        },
+        "name": "Swift",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cdd"
+        },
+        "name": "PHP",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67144668973b5b4e182f0cde"
+        },
+        "name": "Ruby",
+        "disabled": false
+    }
+]

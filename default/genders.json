@@ -1,0 +1,30 @@
+[
+    {
+        "_id": {
+            "$oid": "67143ee4973b5b4e182f0ca9"
+        },
+        "name": "Masculino",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143ee4973b5b4e182f0caa"
+        },
+        "name": "Femenino",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143ee4973b5b4e182f0cab"
+        },
+        "name": "No binario",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143ee4973b5b4e182f0cac"
+        },
+        "name": "Prefiero no decirlo",
+        "disabled": false
+    }
+]
