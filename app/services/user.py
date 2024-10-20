@@ -65,6 +65,8 @@ class UserService:
                 delattr(user, "phone")
             if hasattr(user, "new"):
                 delattr(user, "new")
+            if hasattr(user, "programming_languages"):
+                delattr(user, "programming_languages")
 
             user.date_update = datetime.now(timezone.utc)
             user.disabled = find.disabled

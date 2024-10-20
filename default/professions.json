@@ -1,0 +1,114 @@
+[
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc1"
+        },
+        "name": "Estudiante",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc2"
+        },
+        "name": "Ingeniero de datos",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc3"
+        },
+        "name": "Científico de datos",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc4"
+        },
+        "name": "Ingeniero de DevOps",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc5"
+        },
+        "name": "Analista de seguridad",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc6"
+        },
+        "name": "Desarrollador de videojuegos",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc7"
+        },
+        "name": "Desarrollador Web Front-End",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc8"
+        },
+        "name": "Desarrollador Web Back-End",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cc9"
+        },
+        "name": "Ingeniero de robótica",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cca"
+        },
+        "name": "Ingeniero de automatización",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0ccb"
+        },
+        "name": "Desarrollador de aplicaciones móviles",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0ccc"
+        },
+        "name": "Ingeniero de sistemas",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0ccd"
+        },
+        "name": "Ingeniero de inteligencia artificial",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cce"
+        },
+        "name": "Ingeniero de aprendizaje automático",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0ccf"
+        },
+        "name": "Licenciado en Informática",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671445f5973b5b4e182f0cd0"
+        },
+        "name": "Otro",
+        "disabled": false
+    }
+]

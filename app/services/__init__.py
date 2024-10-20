@@ -7,3 +7,4 @@ from .gender import GenderService
 from .profession import ProfessionService
 from .socialnetwork import SocialNetworkService
 from .programminglanguage import ProgrammingLanguageService
+from .location import LocationService

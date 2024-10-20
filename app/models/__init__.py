@@ -1,3 +1,4 @@
+from .skills import UserSkill
 from .event import Event, EventInDB, EventAPI, EventRegister, EventRegisterInDB
 from .user import User, UserInDB, UserAPI
 from .token import Token, TokenUser
@@ -9,3 +10,4 @@ from .result import Messages, MessagesInDB, StatusCode
 from .fileblob import FileBlob
 from .socialnetwork import SocialNetwork, SocialNetworkInDB
 from .programminglanguage import ProgrammingLanguage, ProgrammingLanguageInDB
+from .location import Location, LocationInDB
