@@ -19,6 +19,8 @@ class StatusCode(str, Enum):
     ADDITIONAL_INFO_REQUIRED = "additional_info_required"
     RESPONSES_NOT_COMPLETE = "responses_not_complete"
     ERROR_REGISTERING = "error_registering"
+    RRSS_REQUIRED = "rrss_required"
+    RRSS_NOT_FOUND = "rrss_not_found"
 
 
 class Result(BaseModel):

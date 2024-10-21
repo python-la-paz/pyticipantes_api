@@ -36,7 +36,7 @@ async def login_public(request: Request):
             generated, token = TokenPublicService.create(
                 Token(username=ret.username, token="")
             )
-            return {"token": token}
+            return {"token": token, "new": ret.new}
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

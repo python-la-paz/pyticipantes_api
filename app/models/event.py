@@ -49,6 +49,7 @@ class EventRegister(BaseModel):
     note: Optional[str] = None
     document_upload: Optional[FileBlob] = None
     additional_info: Optional[List[str]] = []
+    rrss: Optional[PyObjectId] = None
 
 class EventRegisterInDB(EventRegister):
     disabled: Optional[bool] = False

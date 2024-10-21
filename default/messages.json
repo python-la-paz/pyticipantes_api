@@ -102,5 +102,21 @@
         "code": "error_registering",
         "message": "Error al registrar",
         "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715c8a2f09ff2dcf39e7d90"
+        },
+        "code": "rrss_required",
+        "message": "Se requiere una red social",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715c8a2f09ff2dcf39e7d91"
+        },
+        "code": "rrss_not_found",
+        "message": "Red social no encontrada",
+        "disabled": false
     }
 ]

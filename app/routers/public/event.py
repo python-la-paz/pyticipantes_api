@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, Request, UploadFile, status
+from fastapi import APIRouter, Depends, Form, Request, UploadFile, status
 from fastapi.responses import JSONResponse
 
 from app.auth.access import get_api_key_public
@@ -47,8 +47,9 @@ async def get_event_by_id(
 async def register_in_event(
     request: Request,
     id: PyObjectId,
-    file: UploadFile,
-    additional_info: List[str] = [],
+    file: Optional[UploadFile] = None,
+    additional_info: List[str] = Form([]),
+    rrss: Optional[PyObjectId] = Form(None),
     user: Token = Depends(get_api_key_public),
 ):
     try:
@@ -65,6 +66,7 @@ async def register_in_event(
         file=file,
         size_image=size_image,
         additional_info=additional_info,
+        rrss=rrss,
     )
     message = MessagesService.get_by_code(status_code)
     if not event_register:
