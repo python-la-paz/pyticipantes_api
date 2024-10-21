@@ -104,7 +104,7 @@ class EventRegistration:
             user=user.id,
             date=datetime.now(),
             seat=seat + 1,
-            status="pending" if event.automatic else "accepted",
+            status="accepted" if event.automatic else "pending",
             document_upload=blob if event.document_required else None,
             additional_info=additional_info if event.additional_info else [],
             rrss=social_network.id,
