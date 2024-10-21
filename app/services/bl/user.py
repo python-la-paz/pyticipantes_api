@@ -1,7 +1,8 @@
 from typing import List
 
-from app.models import Gender, User, UserAPI, UserInDB, Profession
-from app.services import GenderService, UserService, ProfessionService
+from app.models import Gender, Location, Profession, User, UserAPI, UserInDB
+from app.services import (GenderService, LocationService, ProfessionService,
+                          UserService)
 
 
 class UserProfileService:
@@ -68,6 +69,7 @@ class UserProfileService:
         find.residence = user.residence
         find.level_programming = user.level_programming
         find.phone = user.phone
+        find.programming_languages = user.programming_languages
 
         validate_info = cls.validate_fields(find)
         if not validate_info:
@@ -118,3 +120,12 @@ class UserProfileService:
             List of professions: List
         """
         return ProfessionService.list()
+
+    @classmethod
+    def list_locations(cls) -> List[Location]:
+        """Get list of locations
+
+        Returns:
+            List of locations: List
+        """
+        return LocationService.list()

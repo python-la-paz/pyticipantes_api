@@ -6,6 +6,7 @@ from fastapi import UploadFile
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Event, EventRegister, EventRegisterInDB, FileBlob,
                         StatusCode)
+from app.services import SocialNetworkService
 from app.services.bl.user import UserProfileService
 from app.services.event import EventService
 from app.utils import PyObjectId, google_cloud_storage
@@ -37,6 +38,7 @@ class EventRegistration:
         file: UploadFile,
         size_image: int,
         additional_info: List[str],
+        rrss: str,
     ) -> Tuple[EventRegisterInDB | None, str, StatusCode]:
         user = UserProfileService.get_public_user(username)
         if user is None:
@@ -89,6 +91,13 @@ class EventRegistration:
 
         if len(additional_info) != len(event.additional_info):
             return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
+    
+        if not rrss:
+            return None, "RRSS required", StatusCode.RRSS_REQUIRED
+        social_network = SocialNetworkService.get(rrss)
+        if social_network is None:
+            return None, "Social network not found", StatusCode.RRSS_NOT_FOUND
+
 
         register = EventRegisterInDB(
             event=event.id,
@@ -98,6 +107,7 @@ class EventRegistration:
             status="pending" if event.automatic else "accepted",
             document_upload=blob if event.document_required else None,
             additional_info=additional_info if event.additional_info else [],
+            rrss=social_network.id,
         )
         register = EventService.register_in_event(register)
         if register is None:

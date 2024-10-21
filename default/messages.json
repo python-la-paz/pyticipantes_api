@@ -1,0 +1,122 @@
+[
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0beff"
+        },
+        "code": "default",
+        "message": "Por defecto",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf00"
+        },
+        "code": "register_complete",
+        "message": "Registro completo",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf01"
+        },
+        "code": "-user_not_found",
+        "message": "Usuario no encontrado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf02"
+        },
+        "code": "user_data_not_complete",
+        "message": "Datos de usuario no completos",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf03"
+        },
+        "code": "event_not_found",
+        "message": "Evento no encontrado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf04"
+        },
+        "code": "event_already_finished",
+        "message": "Evento ya finalizado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf05"
+        },
+        "code": "event_full",
+        "message": "Evento completo",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf06"
+        },
+        "code": "user_already_registered",
+        "message": "Usuario ya registrado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf07"
+        },
+        "code": "no_valid_content_type",
+        "message": "No es un tipo de contenido válido",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf08"
+        },
+        "code": "max_size_enabled",
+        "message": "Tamaño máximo habilitado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf09"
+        },
+        "code": "additional_info_required",
+        "message": "Información adicional requerida",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf0a"
+        },
+        "code": "responses_not_complete",
+        "message": "Respuestas no completas",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "671207cf8661d03921d0bf0b"
+        },
+        "code": "error_registering",
+        "message": "Error al registrar",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715c8a2f09ff2dcf39e7d90"
+        },
+        "code": "rrss_required",
+        "message": "Se requiere una red social",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715c8a2f09ff2dcf39e7d91"
+        },
+        "code": "rrss_not_found",
+        "message": "Red social no encontrada",
+        "disabled": false
+    }
+]

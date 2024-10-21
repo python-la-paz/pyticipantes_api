@@ -1,0 +1,72 @@
+[
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb1"
+        },
+        "name": "La Paz, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb2"
+        },
+        "name": "Cochabamba, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb3"
+        },
+        "name": "Santa Cruz, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb4"
+        },
+        "name": "Oruro, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb5"
+        },
+        "name": "Potosí, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb6"
+        },
+        "name": "Tarija, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb7"
+        },
+        "name": "Sucre, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb8"
+        },
+        "name": "Beni, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cb9"
+        },
+        "name": "Pando, Bolivia",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67143f75973b5b4e182f0cba"
+        },
+        "name": "Otro",
+        "disabled": false
+    }
+]

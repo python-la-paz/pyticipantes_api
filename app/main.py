@@ -19,6 +19,7 @@ from app.routers.public import profession as public_profession
 from app.routers.public import user as public_user
 from app.routers.public import socialnetwork as public_socialnetwork
 from app.routers.public import programminglanguage as public_programminglanguage
+from app.routers.public import location as public_location
 from app.services.page import PageService
 
 
@@ -98,3 +99,4 @@ app.include_router(public_profession.router, prefix="/api/public/profession", ta
 app.include_router(public_files.router, prefix="/api/public/files", tags=["Public"])
 app.include_router(public_socialnetwork.router, prefix="/api/public/socialnetwork", tags=["Public"])
 app.include_router(public_programminglanguage.router, prefix="/api/public/programminglanguage", tags=["Public"])
+app.include_router(public_location.router, prefix="/api/public/location", tags=["Public"])

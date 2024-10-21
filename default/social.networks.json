@@ -1,0 +1,72 @@
+[
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d97"
+        },
+        "name": "WhatsApp",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d98"
+        },
+        "name": "TikTok",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d99"
+        },
+        "name": "Telegram",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9a"
+        },
+        "name": "Facebook",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9b"
+        },
+        "name": "X (Twitter)",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9c"
+        },
+        "name": "Instagram",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9d"
+        },
+        "name": "LinkedIn",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9e"
+        },
+        "name": "Compañeros de estudio",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7d9f"
+        },
+        "name": "Compañeros de trabajo",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6715ca4af09ff2dcf39e7da0"
+        },
+        "name": "Otro",
+        "disabled": false
+    }
+]
