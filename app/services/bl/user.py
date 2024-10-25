@@ -70,6 +70,8 @@ class UserProfileService:
         find.level_programming = user.level_programming
         find.phone = user.phone
         find.programming_languages = user.programming_languages
+        find.given_name = user.given_name
+        find.family_name = user.family_name
 
         validate_info = cls.validate_fields(find)
         if not validate_info:
@@ -92,11 +94,26 @@ class UserProfileService:
         Returns:
             bool: True if fields are valid, False if not
         """
+        if len(user.given_name) < 3 or len(user.given_name) > 30:
+            return False
+        if len(user.family_name) < 3 or len(user.family_name) > 30:
+            return False
+        if len(user.dni) < 6 or len(user.dni) > 10:
+            return False
+        if not user.phone.isnumeric():
+            return False
+        if len(user.phone) < 6 or len(user.phone) > 15:
+            return False
+        if len(user.place_profession) < 3 or len(user.place_profession) > 50:
+            return False
         gender = GenderService.get(user.gender)
         if not gender:
             return False
         profession = ProfessionService.get(user.profession)
         if not profession:
+            return False
+        residence = LocationService.get(user.residence)
+        if not residence:
             return False
         if user.level_programming < 0 or user.level_programming > 10:
             return False
