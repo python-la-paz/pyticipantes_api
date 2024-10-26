@@ -121,18 +121,3 @@ class GenderService:
         if gender_data:
             return Gender(**gender_data)  # Asegúrate de tener un modelo para esto
         return None
-
-    @classmethod
-    def get(cls, gender_id: ObjectId) -> Gender | None:
-        """Retrieve a gender by ID.
-
-        Args:
-            gender_id (ObjectId): ID of the gender to find.
-
-        Returns:
-            Gender | None: Gender found or None if not found.
-        """
-        gender_data = cls.TABLE.find_one({"_id": gender_id})
-        if gender_data:
-            return Gender(**gender_data)  # Asegúrate de tener un modelo para esto
-        return None
