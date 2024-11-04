@@ -11,3 +11,4 @@ from .fileblob import FileBlob
 from .socialnetwork import SocialNetwork, SocialNetworkInDB
 from .programminglanguage import ProgrammingLanguage, ProgrammingLanguageInDB
 from .location import Location, LocationInDB
+from .activity import Activity, ActivityInDB, ActivityAPI, ActivityRegister, ActivityRegisterInDB

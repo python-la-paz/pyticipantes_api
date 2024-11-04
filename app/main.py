@@ -10,7 +10,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.auth.access import get_actual_user
 from app.core import configuration
 from app.routers import (event, gender, oauth_google, page, page_render, 
-                         profession, token, users, programminglanguage, socialnetwork)
+                         profession, token, users, programminglanguage, socialnetwork, activity)
 from app.routers.public import event as public_event
 from app.routers.public import gender as public_gender
 from app.routers.public import files as public_files
@@ -20,7 +20,9 @@ from app.routers.public import user as public_user
 from app.routers.public import socialnetwork as public_socialnetwork
 from app.routers.public import programminglanguage as public_programminglanguage
 from app.routers.public import location as public_location
+from app.routers.public import activity as public_activity
 from app.services.page import PageService
+
 
 
 TITLE = configuration.APP_TITLE
@@ -91,6 +93,7 @@ app.include_router(gender.router, prefix="/api/gender", tags=["Genders"])
 app.include_router(profession.router, prefix="/api/profession", tags=["Professsion"])
 app.include_router(socialnetwork.router, prefix="/api/socialnetwork", tags=["Social Network"])
 app.include_router(programminglanguage.router, prefix="/api/programminglanguage", tags=["Programming Language"])
+app.include_router(activity.router, prefix="/api/activity", tags=["Activity"])
 app.include_router(public_oauth_google.router, prefix="/api/public/google", tags=["Public"])
 app.include_router(public_user.router, prefix="/api/public/user", tags=["Public"])
 app.include_router(public_gender.router, prefix="/api/public/gender", tags=["Public"])
@@ -100,3 +103,4 @@ app.include_router(public_files.router, prefix="/api/public/files", tags=["Publi
 app.include_router(public_socialnetwork.router, prefix="/api/public/socialnetwork", tags=["Public"])
 app.include_router(public_programminglanguage.router, prefix="/api/public/programminglanguage", tags=["Public"])
 app.include_router(public_location.router, prefix="/api/public/location", tags=["Public"])
+app.include_router(public_activity.router, prefix="/api/public/activity", tags=["Public"])
