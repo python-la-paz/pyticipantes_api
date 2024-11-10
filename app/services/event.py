@@ -156,8 +156,6 @@ class EventService:
 
     @classmethod
     def is_full(cls, event: Event) -> bool:
-        if not event.quota:
-            return False, 0
         count = cls.TABLE_REGISTER.count_documents(
             {
                 "event": event.id,
@@ -165,6 +163,8 @@ class EventService:
                 "status": {"$in": ["pending", "accepted"]},
             }
         )
+        if not event.quota:
+            return False, count
         if count >= event.quota:
             return True, count
         return False, count
