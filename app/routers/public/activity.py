@@ -1,3 +1,4 @@
+
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, UploadFile, status
@@ -10,6 +11,7 @@ from app.services.bl import ActivityRegistration
 from app.services.messages import MessagesService
 from app.utils.mongo_validator import PyObjectId
 
+
 router = APIRouter()
 
 @router.get(
@@ -20,6 +22,14 @@ router = APIRouter()
         status.HTTP_400_BAD_REQUEST: {"model": Result},
     },
 )
+
+async def get_activities(user: Token = Depends(get_api_key_public)):
+    """Retrieve a list of activities."""
+    activities = ActivityService.list()
+    if not activities:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No activities found.")
+    return activities
+
 
 @router.get("", response_model=List[Activity], status_code=status.HTTP_200_OK)
 async def get_activities(

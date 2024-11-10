@@ -9,6 +9,7 @@ from app.utils import PyObjectId
 
 
 
+
 class ActivityService:
     """Service for ACTIVITY in database operations"""
 
@@ -104,6 +105,7 @@ class ActivityService:
         items = [Activity(**find) for find in finds]
         return items
     
+
     @classmethod
     def search(cls, q: str, page_number: int = 0, n_per_page: int = 100) -> List[Activity]:
         """Search activities by title in database.
@@ -218,6 +220,4 @@ class ActivityService:
             {"disabled": False, "activity": id, "user": user}
         ).sort("date", pymongo.DESCENDING)
         items = [ActivityRegister(**find) for find in finds]
-        return items
-
-    
+        return items    
