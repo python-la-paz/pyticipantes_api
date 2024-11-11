@@ -77,7 +77,10 @@ class TokenService:
         find = cls.TABLE.find_one(
             {"jti": jti, "disabled": False}
         )
-        return find
+        if find is not None:
+            return Token(**find)
+        else:
+            return None
 
     @classmethod
     def get_token(cls, token: str) -> Token | None:

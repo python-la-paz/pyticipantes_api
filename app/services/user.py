@@ -1,9 +1,10 @@
 from datetime import datetime, timezone
+from typing import List
 
 from pymongo.collection import ReturnDocument
 
 from app.core.database import db
-from app.models.user import UserInDB
+from app.models.user import User, UserInDB
 from app.utils import PyObjectId
 
 
@@ -127,3 +128,15 @@ class UserService:
             return_document=ReturnDocument.AFTER,
         )
         return UserInDB(**ret)
+    
+    @classmethod
+    def get_users_by_ids(cls, ids: list) -> List[User]:
+        """Get users from database by ids
+        Args:
+            ids (list): list of ids of users to find
+
+        Returns:
+            list: list of users information
+        """
+        ret = cls.TABLE.find({"_id": {"$in": ids}, "disabled": False})
+        return [User(**r) for r in ret]
