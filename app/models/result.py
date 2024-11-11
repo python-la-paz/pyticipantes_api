@@ -21,6 +21,10 @@ class StatusCode(str, Enum):
     ERROR_REGISTERING = "error_registering"
     RRSS_REQUIRED = "rrss_required"
     RRSS_NOT_FOUND = "rrss_not_found"
+    ACTIVITY_NOT_FOUND = "activity_not_found"
+    ACTIVITY_ALREADY_FINISHED = "activity_already_finished"
+    ACTIVITY_FULL = "activity_full"
+    REGISTER_NOT_FOUND = "register_not_found"
 
 
 class Result(BaseModel):

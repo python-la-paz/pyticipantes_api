@@ -52,7 +52,7 @@
             "$oid": "671207cf8661d03921d0bf05"
         },
         "code": "event_full",
-        "message": "Evento completo",
+        "message": "Evento lleno",
         "disabled": false
     },
     {
@@ -117,6 +117,38 @@
         },
         "code": "rrss_not_found",
         "message": "Red social no encontrada",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67315cd8ac7ab8313b41e0b2"
+        },
+        "code": "activity_not_found",
+        "message": "Actividad no encontrada",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67315cd8ac7ab8313b41e0b3"
+        },
+        "code": "activity_already_finished",
+        "message": "Actividad ya finalizada",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67315cd8ac7ab8313b41e0b4"
+        },
+        "code": "activity_full",
+        "message": "Actividad llena",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "67315cd8ac7ab8313b41e0b5"
+        },
+        "code": "register_not_found",
+        "message": "Registro no encontrado",
         "disabled": false
     }
 ]
