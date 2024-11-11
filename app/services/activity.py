@@ -277,3 +277,11 @@ class ActivityService:
             {"_id": id, "disabled": False},
             {"$set": {"disabled": True, "date_update": datetime.now(timezone.utc)}},
         )
+
+    @classmethod
+    def get_all_registers(cls, id: PyObjectId) -> List[ActivityRegister]:
+        finds = cls.TABLE_REGISTER.find(
+            {"disabled": False, "activity": id, "status": {"$in": ["accepted"]}}
+        ).sort("date", pymongo.DESCENDING)
+        items = [ActivityRegister(**find) for find in finds]
+        return items

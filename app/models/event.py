@@ -3,7 +3,9 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
+from app.models.activity import Activity, ActivityRegister, ActivityUsersMigration
 from app.models.fileblob import FileBlob
+from app.models.user import User
 from app.utils import PyObjectId
 
 
@@ -57,3 +59,7 @@ class EventRegisterInDB(EventRegister):
     date_update: Optional[datetime] = None
     username_insert: Optional[str] = None
     username_update: Optional[str] = None
+
+class EventRegisterMigration(Event):
+    participants: List[User] = []
+    activities: List[ActivityUsersMigration] = []

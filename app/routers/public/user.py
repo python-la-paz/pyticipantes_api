@@ -8,6 +8,7 @@ from app.models import Result, Token, UserInDB
 from app.models.user import User, UserAPI
 from app.services import TokenPublicService, UserService
 from app.services.bl import UserProfileService
+from app.utils.mongo_validator import PyObjectId
 
 router = APIRouter()
 

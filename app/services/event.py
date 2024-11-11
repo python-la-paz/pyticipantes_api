@@ -217,3 +217,11 @@ class EventService:
         ).sort("date", pymongo.DESCENDING)
         items = [EventRegister(**find) for find in finds]
         return items
+
+    @classmethod
+    def get_all_registers(cls, id: PyObjectId) -> List[EventRegister]:
+        finds = cls.TABLE_REGISTER.find(
+            {"disabled": False, "event": id, "status": {"$in": ["accepted"]}}
+        ).sort("date", pymongo.DESCENDING)
+        items = [EventRegister(**find) for find in finds]
+        return items

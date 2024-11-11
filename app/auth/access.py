@@ -74,8 +74,13 @@ async def get_api_key(api_key: str = Security(api_key_header)) -> UserInDB:
         )
         user_dict = dict(json.loads(user))
         jti = user_dict["jti"]
-        actual_user = UserInDB(**user_dict)
         ret = TokenService.verify_by_jti(jti)
+        user = UserService.get_user_by_username(ret.username)
+        if user.admin == False:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="You are not admin"
+            )
+        actual_user = user
         if ret is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail="Token unvalid"

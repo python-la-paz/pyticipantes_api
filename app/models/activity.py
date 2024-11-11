@@ -4,6 +4,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from app.models.fileblob import FileBlob
+from app.models.user import User
 from app.utils import PyObjectId
 
 class ActivityAPI(BaseModel):
@@ -57,3 +58,6 @@ class ActivityRegisterInDB(ActivityRegister):
     date_update: Optional[datetime] = None
     username_insert: Optional[str] = None
     username_update: Optional[str] = None
+
+class ActivityUsersMigration(Activity):
+    participants: List[User] = []
