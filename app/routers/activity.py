@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from app.auth.access import get_actual_user
 from app.models import Activity, UserInDB, ActivityInDB
+from app.models.fileblob import FileBlob
 from app.services import ActivityService
 from app.utils import google_cloud_storage
 from app.utils.mongo_validator import PyObjectId

@@ -24,6 +24,7 @@ class StatusCode(str, Enum):
     ACTIVITY_NOT_FOUND = "activity_not_found"
     ACTIVITY_ALREADY_FINISHED = "activity_already_finished"
     ACTIVITY_FULL = "activity_full"
+    REGISTER_NOT_FOUND = "register_not_found"
 
 
 class Result(BaseModel):

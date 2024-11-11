@@ -14,35 +14,6 @@ from app.utils.mongo_validator import PyObjectId
 
 router = APIRouter()
 
-@router.get(
-    "",
-    responses={
-        status.HTTP_404_NOT_FOUND: {"model": Result},
-        status.HTTP_200_OK: {"model": List[Activity]},
-        status.HTTP_400_BAD_REQUEST: {"model": Result},
-    },
-)
-
-async def get_activities(user: Token = Depends(get_api_key_public)):
-    """Retrieve a list of activities."""
-    activities = ActivityService.list()
-    if not activities:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No activities found.")
-    return activities
-
-
-@router.get("", response_model=List[Activity], status_code=status.HTTP_200_OK)
-async def get_activities(
-    page_number: int = 0,
-    n_per_page: int = 100,
-):
-    """Retrieve a list of activities."""
-    search = ActivityRegistration.list_public_activities(
-        page_number=page_number, n_per_page=n_per_page
-    )
-    return search
-
-
 @router.get("/{id}", response_model=Activity, status_code=status.HTTP_200_OK)
 async def get_activity_by_id(
     id: PyObjectId,
@@ -65,19 +36,16 @@ async def register_in_activity(
     user: Token = Depends(get_api_key_public),
 ):
     """Register in an activity."""
-    print("ban1")
+    if not additional_info or additional_info == [""]:
+        additional_info = []
     try:
-        print("ban2")
         size_image = request.headers.get("content-length")
         size_image = int(size_image)
-        print("ban4")
     except Exception:
-        print("ban3")
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=Result(message="Invalid image size").model_dump(),
         )
-    print("ban5")
     activity_register, error, status_code = ActivityRegistration.register_in_activity(
         id=id,
         username=user.username,
@@ -85,18 +53,12 @@ async def register_in_activity(
         size_image=size_image,
         additional_info=additional_info,
     )
-    print("ban6")
-    print(activity_register)
     message = MessagesService.get_by_code(status_code)
     if not activity_register:
-        print("ban8")
-        print(message.message)
-        print(activity_register)
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content=Result(message=message.message, code=message.code).model_dump(),
         )
-    print("ban7")
     return activity_register
 
 
@@ -110,3 +72,20 @@ async def get_activity_registers(
     """Retrieve all registrations for a specific activity."""
     registers = ActivityRegistration.get_registers(id=id, username=user.username)
     return registers
+
+
+@router.delete(
+    "/{id}/register", status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_activity_register(
+    id: PyObjectId,
+    user: Token = Depends(get_api_key_public),
+):
+    """Delete a registration for a specific activity."""
+    activity_register, error, status_code = ActivityRegistration.delete_register(id=id, username=user.username)
+    if not activity_register:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=Result(message=error, code=status_code).model_dump(),
+        )
+    return None

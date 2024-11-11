@@ -7,7 +7,7 @@ from app.models.fileblob import FileBlob
 from app.utils import PyObjectId
 
 class ActivityAPI(BaseModel):
-    evento: PyObjectId
+    event: PyObjectId
     title: str
     description: str
     date: datetime
@@ -31,6 +31,7 @@ class ActivityAPI(BaseModel):
 
 class Activity(ActivityAPI):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    is_full: Optional[bool] = False
 
 class ActivityInDB(Activity):
     disabled: Optional[bool] = False

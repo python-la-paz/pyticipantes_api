@@ -30,6 +30,11 @@ class ActivityRegistration:
         return finds
     
     @classmethod
+    def get_activities_by_event(cls, id: PyObjectId) -> List[Activity]:
+        finds = ActivityService.get_activities_by_event(id)
+        return finds
+    
+    @classmethod
     def register_in_activity(
         cls,
         id: PyObjectId,
@@ -44,21 +49,16 @@ class ActivityRegistration:
         if not user.data_complete:
             return None, "User data not complete", StatusCode.USER_DATA_NOT_COMPLETE
         activity = ActivityService.get_public_not_finished(id = id)
-        print("banreg")
         if activity is None:
             return None, "Activity not found", StatusCode.ACTIVITY_NOT_FOUND
-        print("banreg2")
         if activity.date < datetime.now():
-            print("banreg3")
             return None, "Activity already finished", StatusCode.ACTIVITY_ALREADY_FINISHED
         full, seat = ActivityService.is_full(activity)
-        print("banreg1")
         if full:
             return None, "Activity full", StatusCode.ACTIVITY_FULL
         already = ActivityService.is_already_registered(activity, user.id)
         if already:
             return None, "User already registered", StatusCode.USER_ALREADY_REGISTERED
-
         blob = None
         if activity.document_required:
             if not file.content_type in CONTENT_TYPES_IMAGE:
@@ -67,27 +67,21 @@ class ActivityRegistration:
                     f"No valid content type, valid types: {','.join(CONTENT_TYPES_VALID)}",
                     StatusCode.NO_VALID_CONTENT_TYPE,
                 )
-
             if size_image > MAX_SIZE_IMAGE_MB * 1024 * 1024:
                 return (
                     False,
                     f"Max size enabled: {MAX_SIZE_IMAGE_MB} MB",
                     StatusCode.MAX_SIZE_ENABLED,
                 )
-
             result, filename, url, content_type = google_cloud_storage.upload_file(
                 f"{activity.id}-{user.id}", file.filename, file.content_type, file.file
             )
-
             if result:
                 blob = FileBlob(name=filename, url=url, content_type=content_type)
-
         if activity.additional_info and not additional_info:
             return None, "Additional info required", StatusCode.ADDITIONAL_INFO_REQUIRED
-
         if len(additional_info) != len(activity.additional_info):
             return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
-
         register = ActivityRegisterInDB(
             activity=activity.id,
             user=user.id,
@@ -97,7 +91,6 @@ class ActivityRegistration:
             document_upload=blob if activity.document_required else None,
             additional_info=additional_info if activity.additional_info else [],
         )
-        
         register = ActivityService.register_in_activity(register)
         if register is None:
             return None, "Error registering", StatusCode.ERROR_REGISTERING
@@ -109,7 +102,34 @@ class ActivityRegistration:
         user = UserProfileService.get_public_user(username)
         if not user:
             return []
-        
         registers = ActivityService.get_registers(id, user.id)
         return registers
+    @classmethod
+    def get_registers_by_event(cls, id: PyObjectId, username: str) -> List[ActivityRegister]:
+        user = UserProfileService.get_public_user(username)
+        if not user:
+            return []
+        
+        activities = ActivityService.get_activities_by_event(id)      
+        activities_ids = [activity.id for activity in activities]
+        registers = ActivityService.get_registers_by_ids(activities_ids, user.id)
+        return registers
     
+    @classmethod
+    def delete_register(cls, id: PyObjectId, username: str) -> Tuple[bool, str, StatusCode]:
+        user = UserProfileService.get_public_user(username)
+        if not user:
+            return False, "User not found", StatusCode.USER_NOT_FOUND
+        if not user.data_complete:
+            return None, "User data not complete", StatusCode.USER_DATA_NOT_COMPLETE
+        activity = ActivityService.get_public_not_finished(id = id)
+        if activity is None:
+            return None, "Activity not found", StatusCode.ACTIVITY_NOT_FOUND
+        register = ActivityService.actual_registered(activity, user.id)
+        if register is None:
+            return False, "Register not found", StatusCode.REGISTER_NOT_FOUND
+        if register.user != user.id:
+            return False, "Register not found", StatusCode.REGISTER_NOT_FOUND
+        
+        ActivityService.delete_register(register.id)
+        return True, "Success", StatusCode.REGISTER_COMPLETE

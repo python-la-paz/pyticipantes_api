@@ -6,7 +6,9 @@ from fastapi.responses import JSONResponse
 from app.auth.access import get_api_key_public
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import Event, EventRegister, Result, Token
+from app.models.activity import Activity, ActivityRegister
 from app.services.bl import EventRegistration, UserProfileService
+from app.services.bl.activity_register import ActivityRegistration
 from app.services.messages import MessagesService
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 from app.utils.mongo_validator import PyObjectId
@@ -14,14 +16,6 @@ from app.utils.mongo_validator import PyObjectId
 router = APIRouter()
 
 
-@router.get(
-    "",
-    responses={
-        status.HTTP_404_NOT_FOUND: {"model": Result},
-        status.HTTP_200_OK: {"model": List[Event]},
-        status.HTTP_400_BAD_REQUEST: {"model": Result},
-    },
-)
 @router.get("", response_model=List[Event], status_code=status.HTTP_200_OK)
 async def get_events(
     page_number: int = 0,
@@ -86,3 +80,22 @@ async def get_event_registers(
 ):
     registers = EventRegistration.get_registers(id=id, username=user.username)
     return registers
+
+@router.get(
+    "/{id}/activity", response_model=List[Activity], status_code=status.HTTP_200_OK
+)
+async def get_event_activities(
+    id: PyObjectId,
+):
+    activities = ActivityRegistration.get_activities_by_event(id=id)
+    return activities
+
+@router.get(
+    "/{id}/activity/register", response_model=List[ActivityRegister], status_code=status.HTTP_200_OK
+)
+async def get_event_activities_registers(
+    id: PyObjectId,
+    user: Token = Depends(get_api_key_public),
+):
+    activities = ActivityRegistration.get_registers_by_event(id=id, username=user.username)
+    return activities

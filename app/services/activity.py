@@ -52,6 +52,8 @@ class ActivityService:
             delattr(item, "id")
         if hasattr(item, "username_update"):
             delattr(item, "username_update")
+        if hasattr(item, "is_full"):
+            delattr(item, "is_full")
 
         # Insertar la actividad sin comprobación de nombre
         inserted = cls.TABLE.insert_one(item.model_dump(by_alias=True))
@@ -73,7 +75,9 @@ class ActivityService:
             delattr(item, "date_insert")
         if hasattr(item, "username_insert"):
             delattr(item, "username_insert")
-
+        if hasattr(item, "is_full"):
+            delattr(item, "is_full")
+        
         item.date_update = datetime.now(timezone.utc)
         ret = cls.TABLE.find_one_and_update(
             {"_id": item.id, "disabled": False},
@@ -160,8 +164,6 @@ class ActivityService:
 
     @classmethod
     def is_full(cls, activity: Activity) -> bool:
-        if not activity.quota:
-            return False, 0
         count = cls.TABLE_REGISTER.count_documents(
             {
                 "activity": activity.id,
@@ -169,6 +171,8 @@ class ActivityService:
                 "status": {"$in": ["pending", "accepted"]},
             }
         )
+        if not activity.quota:
+            return False, 0
         if count >= activity.quota:
             return True, count
         return False, count
@@ -184,6 +188,21 @@ class ActivityService:
             }
         )
         return count > 0
+    
+    @classmethod
+    def actual_registered(cls, activity: Activity, user: PyObjectId) -> ActivityRegister | None:
+        search = cls.TABLE_REGISTER.find_one(
+            {
+                "activity": activity.id,
+                "user": user,
+                "disabled": False,
+                "status": {"$in": ["pending", "accepted"]},
+            }
+        )
+        if search is not None:
+            return ActivityRegister(**search)
+        else:
+            return None
 
     @classmethod
     def get_register(cls, id: PyObjectId) -> ActivityRegister | None:
@@ -220,4 +239,41 @@ class ActivityService:
             {"disabled": False, "activity": id, "user": user}
         ).sort("date", pymongo.DESCENDING)
         items = [ActivityRegister(**find) for find in finds]
-        return items    
+        return items
+
+    @classmethod
+    def get_registers_by_ids(cls, ids: List[PyObjectId], user: PyObjectId) -> List[ActivityRegister]:
+        finds = cls.TABLE_REGISTER.find(
+            {"disabled": False, "activity": {"$in": ids}, "user": user}
+        ).sort("date", pymongo.DESCENDING)
+        items = [ActivityRegister(**find) for find in finds]
+        return items
+
+    @classmethod
+    def get_activities_by_event(cls, id: PyObjectId, public: bool=True) -> List[Activity]:
+        finds = cls.TABLE.find({"event": id, "disabled": False, "public": public})
+        items = [Activity(**find) for find in finds]
+        items_id = [item.id for item in items]
+        # Count registers by activity
+        registers = cls.TABLE_REGISTER.aggregate(
+            [
+                {"$match": {"activity": {"$in": items_id}, "disabled": False}},
+                {"$group": {"_id": "$activity", "count": {"$sum": 1}}},
+            ]
+        )
+        registers = {register["_id"]: register["count"] for register in registers}
+        for item in items:
+            item.is_full = registers.get(item.id, 0) >= item.quota
+        return items
+    
+    @classmethod
+    def delete_register(cls, id: PyObjectId) -> None:
+        """Delete an activity register in the database by id.
+
+        Args:
+            id (PyObjectId): ObjectId of the activity register to delete in the database.
+        """
+        cls.TABLE_REGISTER.find_one_and_update(
+            {"_id": id, "disabled": False},
+            {"$set": {"disabled": True, "date_update": datetime.now(timezone.utc)}},
+        )
