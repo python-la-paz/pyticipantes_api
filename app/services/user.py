@@ -130,7 +130,7 @@ class UserService:
         return UserInDB(**ret)
     
     @classmethod
-    def get_users_by_ids(cls, ids: list) -> List[User]:
+    def get_users_by_ids(cls, ids: list = [], not_ids: list = []) -> List[User]:
         """Get users from database by ids
         Args:
             ids (list): list of ids of users to find
@@ -138,5 +138,6 @@ class UserService:
         Returns:
             list: list of users information
         """
-        ret = cls.TABLE.find({"_id": {"$in": ids}, "disabled": False})
+        ret = cls.TABLE.find({"_id": {"$in": ids, "$nin": not_ids}, "disabled": False})
+
         return [User(**r) for r in ret]
