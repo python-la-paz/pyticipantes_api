@@ -85,16 +85,16 @@ async def create_event(
     return EventService.update(item=eventdb)
 
 
-@router.get(
+@router.post(
     "/{id}/users",
     response_model=EventRegisterMigration,
 )
-async def get_users_by_event(id: PyObjectId, user: UserInDB = Depends(get_api_key)):
+async def get_users_by_event(id: PyObjectId, migrated_ids: List[PyObjectId] = [], user: UserInDB = Depends(get_api_key)):
     eventdb = EventService.get(id=id)
     if eventdb is None:
         raise Exception("Event not found")
     event_registers = EventService.get_all_registers(id=id)
-    users = UserService.get_users_by_ids([er.user for er in event_registers])
+    users = UserService.get_users_by_ids(ids=[er.user for er in event_registers], not_ids=migrated_ids)
 
     eventRegisterMigration = EventRegisterMigration(**eventdb.model_dump(by_alias=True))
     eventRegisterMigration.participants = users
@@ -107,7 +107,7 @@ async def get_users_by_event(id: PyObjectId, user: UserInDB = Depends(get_api_ke
     eventRegisterMigration.activities = activityUsersMigration
     for activity in activityUsersMigration:
         activity_registers = ActivityService.get_all_registers(id=activity.id)
-        users = UserService.get_users_by_ids([er.user for er in activity_registers])
+        users = UserService.get_users_by_ids(ids=[er.user for er in activity_registers], not_ids=migrated_ids)
         activity.participants = users
 
     return eventRegisterMigration
