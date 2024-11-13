@@ -225,3 +225,14 @@ class EventService:
         ).sort("date", pymongo.DESCENDING)
         items = [EventRegister(**find) for find in finds]
         return items
+
+
+    @classmethod
+    def get_register_by_user(cls, id: PyObjectId, user: PyObjectId) -> EventRegister | None:
+        search = cls.TABLE_REGISTER.find_one(
+            {"event": id, "user": user, "disabled": False, "status": {"$in": ["pending", "accepted"]}}
+        )
+        if search is not None:
+            return EventRegister(**search)
+        else:
+            return None
