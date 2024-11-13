@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import List
+from typing import List, Tuple
 
 from pymongo.collection import ReturnDocument
 
@@ -141,3 +141,23 @@ class UserService:
         ret = cls.TABLE.find({"_id": {"$in": ids, "$nin": not_ids}, "disabled": False})
 
         return [User(**r) for r in ret]
+    
+    @classmethod
+    def get_user_by_ci(cls, dni: str) -> Tuple[User|None, bool]:
+        """Get user from database by ci
+        Args:
+            dni (str): dni of user to find
+
+        Returns:
+            User | None: User information if found else None
+            bool: True if more than one user found, False otherwise
+        """
+        ret = cls.TABLE.find({"dni": dni, "disabled": False})
+        users = [User(**u) for u in ret]
+        size = len(users)
+        if size == 1:
+            return users[0], False
+        elif size > 1:
+            return None, True
+        return None, False
+        

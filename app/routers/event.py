@@ -111,3 +111,21 @@ async def get_users_by_event(id: PyObjectId, migrated_ids: List[PyObjectId] = []
         activity.participants = users
 
     return eventRegisterMigration
+
+@router.post(
+    "/{id}/users/{dni}",
+    response_model=User,
+)
+async def get_user_by_event(id: PyObjectId, dni: str, user: UserInDB = Depends(get_api_key)):
+    eventdb = EventService.get(id=id)
+    if eventdb is None:
+        raise Exception("Event not found")
+    user, more_than_one  = UserService.get_user_by_ci(dni=dni)
+    if more_than_one:
+        raise Exception("More than one user found")
+    if user is None:
+        raise Exception("User not found")
+    register = EventService.get_register_by_user(id=id, user=user.id)
+    if register is None:
+        return None
+    return user
