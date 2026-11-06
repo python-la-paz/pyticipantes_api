@@ -4,10 +4,11 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from app.models.fileblob import FileBlob
+from app.models.registration import RegistrationPeriod
 from app.models.user import User
 from app.utils import PyObjectId
 
-class ActivityAPI(BaseModel):
+class ActivityAPI(RegistrationPeriod):
     event: PyObjectId
     title: str
     description: str

@@ -6,6 +6,7 @@ from fastapi import UploadFile
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Activity, ActivityRegister, ActivityRegisterInDB, FileBlob,
                         StatusCode)
+from app.models.registration import REGISTRATION_TIMEZONE
 
 from app.services.bl.user import UserProfileService
 from app.services.activity import ActivityService
@@ -51,8 +52,25 @@ class ActivityRegistration:
         activity = ActivityService.get_public_not_finished(id = id)
         if activity is None:
             return None, "Activity not found", StatusCode.ACTIVITY_NOT_FOUND
-        if activity.date < datetime.now():
-            return None, "Activity already finished", StatusCode.ACTIVITY_ALREADY_FINISHED
+        if activity.registration_start is None or activity.registration_end is None:
+            return (
+                None,
+                "Registration dates not configured",
+                StatusCode.ACTIVITY_REGISTRATION_NOT_CONFIGURED,
+            )
+        now = datetime.now(REGISTRATION_TIMEZONE).replace(tzinfo=None)
+        if now < activity.registration_start:
+            return (
+                None,
+                "Registration not started",
+                StatusCode.ACTIVITY_REGISTRATION_NOT_STARTED,
+            )
+        if now > activity.registration_end:
+            return (
+                None,
+                "Registration closed",
+                StatusCode.ACTIVITY_REGISTRATION_CLOSED,
+            )
         full, seat = ActivityService.is_full(activity)
         if full:
             return None, "Activity full", StatusCode.ACTIVITY_FULL

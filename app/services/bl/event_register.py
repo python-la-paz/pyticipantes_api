@@ -6,6 +6,7 @@ from fastapi import UploadFile
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Event, EventRegister, EventRegisterInDB, FileBlob,
                         StatusCode)
+from app.models.event import REGISTRATION_TIMEZONE
 from app.services import SocialNetworkService
 from app.services.bl.user import UserProfileService
 from app.services.event import EventService
@@ -51,8 +52,26 @@ class EventRegistration:
         if event is None:
             return None, "Event not found", StatusCode.EVENT_NOT_FOUND
 
-        if event.date < datetime.now():
-            return None, "Event already finished", StatusCode.EVENT_ALREADY_FINISHED
+        if event.registration_start is None or event.registration_end is None:
+            return (
+                None,
+                "Registration dates not configured",
+                StatusCode.EVENT_REGISTRATION_NOT_CONFIGURED,
+            )
+
+        now = datetime.now(REGISTRATION_TIMEZONE).replace(tzinfo=None)
+        if now < event.registration_start:
+            return (
+                None,
+                "Registration not started",
+                StatusCode.EVENT_REGISTRATION_NOT_STARTED,
+            )
+        if now > event.registration_end:
+            return (
+                None,
+                "Registration closed",
+                StatusCode.EVENT_REGISTRATION_CLOSED,
+            )
 
         full, seat = EventService.is_full(event)
         if full:

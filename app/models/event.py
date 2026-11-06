@@ -5,11 +5,12 @@ from pydantic import BaseModel, Field
 
 from app.models.activity import Activity, ActivityRegister, ActivityUsersMigration
 from app.models.fileblob import FileBlob
+from app.models.registration import REGISTRATION_TIMEZONE, RegistrationPeriod
 from app.models.user import User
 from app.utils import PyObjectId
 
 
-class EventAPI(BaseModel):
+class EventAPI(RegistrationPeriod):
     title: str
     description: str
     date: datetime
@@ -30,6 +31,7 @@ class EventAPI(BaseModel):
     additional_info: Optional[List[str]] = []
     document_required: Optional[bool] = False
     automatic: Optional[bool] = False
+
 class Event(EventAPI):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
 

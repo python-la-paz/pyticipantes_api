@@ -129,10 +129,17 @@ class EventService:
 
     @classmethod
     def list_public_events(
-        cls, page_number: int = 0, n_per_page: int = 100
+        cls, page_number: int = 0, n_per_page: int = 100, order: str = "-id"
     ) -> List[Event]:
+        order_field = order.lstrip("-")
+        if order_field == "id":
+            order_field = "_id"
+        order_direction = (
+            pymongo.DESCENDING if order.startswith("-") else pymongo.ASCENDING
+        )
         finds = (
             cls.TABLE.find({"disabled": False, "public": True})
+            .sort(order_field, order_direction)
             .skip(((page_number - 1) * n_per_page) if page_number > 0 else 0)
             .limit(n_per_page)
         )

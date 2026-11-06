@@ -61,3 +61,60 @@ pytest
 #For more details
 pytest -v -s
 ```
+
+## Event registration dates
+
+`date` is the event date only; it no longer controls event registration.
+Create and update events with `registration_start` and `registration_end`:
+
+```json
+{
+    "title": "Python meetup",
+    "description": "Community event",
+    "date": "2026-12-05T18:00:00-04:00",
+    "location": "La Paz",
+    "registration_start": "2026-11-01T10:00:00-04:00",
+    "registration_end": "2026-11-30T15:30:00-04:00",
+    "public": true,
+    "finished": false
+}
+```
+
+Registration uses the exact start and end datetimes (both inclusive),
+in Bolivia (UTC-04:00). The example opens at 10:00 and closes at 15:30
+on their respective dates; times are never extended to the end of the day.
+Offsets are converted to Bolivia time; inputs without an offset are interpreted
+as Bolivia time. These two fields are stored and returned as offset-free Bolivia
+local datetimes. The start must not be after the end, including when both
+fall on the same day. Midnight means 00:00, not the end of that day.
+To allow an entire end day, explicitly send its end time (for example 23:59:59).
+Previously saved end times are not changed automatically; update existing
+events and activities if they should close at a different hour.
+
+Both fields default to `null` for compatibility with existing events. Events
+missing either field remain queryable but cannot accept registrations until both
+dates are configured. An update that omits them clears the registration period.
+Events must still be public, enabled and not marked as finished; quota,
+duplicate-registration and participant-data checks remain unchanged.
+
+Load the three `event_registration_*` entries from `default/messages.json` into
+the existing messages collection when deploying, so registration errors have
+their Spanish translations.
+
+## Activity registration dates
+
+Activities use the same `registration_start` and `registration_end` fields and
+Bolivia timezone rules as events. `date` is only the activity date and does not
+control registrations. Both fields are accepted on activity creation and update,
+and returned in activity responses, including activities listed under an event.
+
+Registration uses the exact start and end datetimes (both inclusive), including
+their hours, minutes and seconds. Missing either date blocks registration without
+preventing activity queries. Updates that omit these fields clear the period.
+Activities must still be public, enabled and not finished; quota, duplicate and
+participant-data checks are unchanged. Cancellation rules are unchanged.
+Each activity's registration period is independent of its event's period.
+
+Load the three `activity_registration_*` entries from `default/messages.json`
+into the existing messages collection when deploying, and configure both dates
+on existing activities before accepting registrations.
