@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 
 from pydantic import BaseModel, Field
+from app.models.additional_info import AdditionalInfoAnswer, AdditionalInfoQuestion
 
 from app.models.fileblob import FileBlob
 from app.models.registration import RegistrationPeriod
@@ -27,7 +28,7 @@ class ActivityAPI(RegistrationPeriod):
     finished: Optional[bool] = False
     tags: Optional[List[str]] = []
     organizers: Optional[List[str]] = []
-    additional_info: Optional[List[str]] = []
+    additional_info: Optional[List[AdditionalInfoQuestion]] = Field(default_factory=list)
     document_required: Optional[bool] = False
     automatic: Optional[bool] = False
 
@@ -51,7 +52,7 @@ class ActivityRegister(BaseModel):
     status: Optional[str] = "pending" # pending, accepted, rejected
     note: Optional[str] = None
     document_upload: Optional[FileBlob] = None
-    additional_info: Optional[List[str]] = []
+    additional_info: Optional[List[AdditionalInfoAnswer]] = Field(default_factory=list)
 
 class ActivityRegisterInDB(ActivityRegister):
     disabled: Optional[bool] = False

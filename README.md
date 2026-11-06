@@ -118,3 +118,54 @@ Each activity's registration period is independent of its event's period.
 Load the three `activity_registration_*` entries from `default/messages.json`
 into the existing messages collection when deploying, and configure both dates
 on existing activities before accepting registrations.
+
+## Typed additional information
+
+Event and activity `additional_info` contains ordered question objects:
+
+```json
+{
+    "additional_info": [
+        {"question": "Select your favorite IDEs", "type": "multiple", "options": ["vscode", "atom"]},
+        {"question": "Do you agree to these terms?", "type": "single", "options": ["yes", "no"]},
+        {"question": "What is your pet's name?", "type": "text"}
+    ]
+}
+```
+
+Types are `text`, `single`, and `multiple`. Choice questions require unique,
+non-empty options; text questions cannot have options. Legacy plain-string
+questions are read as `text` questions and returned as question objects.
+Existing registration answers remain readable.
+
+For both public registration endpoints, send one multipart/form-data field
+named `additional_info` containing a JSON-encoded answer array, or repeated
+`additional_info` fields containing JSON question/answer objects.
+The file upload and other form fields are unchanged.
+For example, the field value for these questions is:
+
+```json
+[["vscode", "atom"], "yes", "Luna"]
+```
+
+Alternatively, send each of the following JSON objects as a separate
+`additional_info` field, in question order (a single JSON array of these objects
+is also accepted):
+
+```json
+{"question": "Select your favorite IDEs", "type": "multiple", "answer": ["vscode", "atom"]}
+{"question": "Do you agree to these terms?", "type": "single", "answer": "yes"}
+{"question": "What is your pet's name?", "type": "text", "answer": "Luna"}
+```
+
+The objects' `answer` values are extracted before registration validation and
+storage; submitted labels do not replace the configured questions or options.
+
+Answers match questions by position: `text` and `single` use strings, and
+`multiple` uses an array of selected option strings. Every question requires
+a non-empty answer. Unknown options, duplicate selections, incorrect answer
+types, and missing or extra answers are rejected before uploading documents.
+Omitting the field means `[]`, valid only when there are no questions.
+Registrations store and return this mixed array without converting selections
+to strings. Clients must update question rendering and JSON-encode either the
+entire answer array or each question/answer object when submitting registrations.

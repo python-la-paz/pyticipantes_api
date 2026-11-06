@@ -7,7 +7,9 @@ from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Activity, ActivityRegister, ActivityRegisterInDB, FileBlob,
                         StatusCode)
 from app.models.registration import REGISTRATION_TIMEZONE
+from app.models.additional_info import AdditionalInfoAnswer
 
+from app.services.bl.additional_info import validate_additional_info
 from app.services.bl.user import UserProfileService
 from app.services.activity import ActivityService
 from app.utils import PyObjectId, google_cloud_storage
@@ -42,7 +44,7 @@ class ActivityRegistration:
         username: str,
         file: UploadFile,
         size_image: int,
-        additional_info: List[str],
+        additional_info: List[AdditionalInfoAnswer],
     ) -> Tuple[ActivityRegisterInDB | None, str, StatusCode]:
         user = UserProfileService.get_public_user(username)
         if user is None:
@@ -77,6 +79,10 @@ class ActivityRegistration:
         already = ActivityService.is_already_registered(activity, user.id)
         if already:
             return None, "User already registered", StatusCode.USER_ALREADY_REGISTERED
+        validation_error = validate_additional_info(activity.additional_info, additional_info)
+        if validation_error is not None:
+            message, code = validation_error
+            return None, message, code
         blob = None
         if activity.document_required:
             if not file.content_type in CONTENT_TYPES_IMAGE:
@@ -96,10 +102,6 @@ class ActivityRegistration:
             )
             if result:
                 blob = FileBlob(name=filename, url=url, content_type=content_type)
-        if activity.additional_info and not additional_info:
-            return None, "Additional info required", StatusCode.ADDITIONAL_INFO_REQUIRED
-        if len(additional_info) != len(activity.additional_info):
-            return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
         register = ActivityRegisterInDB(
             activity=activity.id,
             user=user.id,
