@@ -12,6 +12,7 @@ from app.services import SocialNetworkService
 from app.services.bl.user import UserProfileService
 from app.services.bl.additional_info import validate_additional_info
 from app.services.event import EventService
+from app.services.registration_email import notify_registration
 from app.utils import PyObjectId, google_cloud_storage
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 
@@ -132,6 +133,9 @@ class EventRegistration:
         register = EventService.register_in_event(register)
         if register is None:
             return None, "Error registering", StatusCode.ERROR_REGISTERING
+        notify_registration(
+            EventService.get_email_config, event.id, register.id, "event", event.title, user
+        )
         return register, "Success", StatusCode.REGISTER_COMPLETE
 
     @classmethod

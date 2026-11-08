@@ -6,6 +6,7 @@ from pymongo.collection import ReturnDocument
 
 from app.core.database import db
 from app.models import Event, EventInDB, EventRegister, EventRegisterInDB
+from app.models.email_notification import RegistrationEmailConfig
 from app.utils import PyObjectId
 
 
@@ -73,10 +74,32 @@ class EventService:
         item.date_update = datetime.now(timezone.utc)
         ret = cls.TABLE.find_one_and_update(
             {"_id": item.id},
-            {"$set": item.model_dump(by_alias=True)},
+            {"$set": item.model_dump(by_alias=True, exclude={"email_enabled", "email_template"})},
             return_document=ReturnDocument.AFTER,
         )
         return Event(**ret)
+
+    @classmethod
+    def get_email_config(cls, id: PyObjectId) -> RegistrationEmailConfig | None:
+        result = cls.TABLE.find_one(
+            {"_id": id, "disabled": False}, {"email_enabled": 1, "email_template": 1}
+        )
+        return RegistrationEmailConfig(**result) if result is not None else None
+
+    @classmethod
+    def update_email_config(
+        cls, id: PyObjectId, config: RegistrationEmailConfig, username: str
+    ) -> RegistrationEmailConfig | None:
+        result = cls.TABLE.find_one_and_update(
+            {"_id": id, "disabled": False},
+            {"$set": {
+                **config.model_dump(),
+                "date_update": datetime.now(timezone.utc),
+                "username_update": username,
+            }},
+            return_document=ReturnDocument.AFTER,
+        )
+        return RegistrationEmailConfig(**result) if result is not None else None
 
     @classmethod
     def delete(cls, id: PyObjectId) -> None:

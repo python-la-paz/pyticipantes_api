@@ -12,6 +12,7 @@ from app.models.additional_info import AdditionalInfoAnswer
 from app.services.bl.additional_info import validate_additional_info
 from app.services.bl.user import UserProfileService
 from app.services.activity import ActivityService
+from app.services.registration_email import notify_registration
 from app.utils import PyObjectId, google_cloud_storage
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 
@@ -114,7 +115,10 @@ class ActivityRegistration:
         register = ActivityService.register_in_activity(register)
         if register is None:
             return None, "Error registering", StatusCode.ERROR_REGISTERING
-            
+        notify_registration(
+            ActivityService.get_email_config, activity.id, register.id,
+            "activity", activity.title, user, event_id=activity.event,
+        )
         return register, "Success", StatusCode.REGISTER_COMPLETE
 
     @classmethod

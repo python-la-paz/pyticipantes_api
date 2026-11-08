@@ -169,3 +169,71 @@ Omitting the field means `[]`, valid only when there are no questions.
 Registrations store and return this mixed array without converting selections
 to strings. Clients must update question rendering and JSON-encode either the
 entire answer array or each question/answer object when submitting registrations.
+
+## Registration email notifications
+
+Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`, `SMTP_USERNAME`, `SMTP_PASSWORD`,
+`SMTP_SECURITY` and `SMTP_TIMEOUT` in the deployment environment. See
+`.env.production` for placeholder values; provide real credentials through a
+secret manager or environment variables, not in the repository. Security can be
+`starttls` (normally port 587) or `ssl` (normally port 465). Authentication is
+optional, but if used both username and password must be set.
+
+Administrators can use OpenAPI to configure HTML notifications with
+`PUT /api/event/{id}/email-config` and `PUT /api/activity/{id}/email-config`.
+The corresponding `GET` endpoints return the saved configuration:
+
+```json
+{
+  "email_enabled": true,
+  "email_template": "<p>Hola {{given_name}}, recibimos tu registro como {{username}}.</p>"
+}
+```
+
+The permitted user placeholders are `{{username}}`, `{{given_name}}`,
+`{{family_name}}` and `{{email}}`. Optional user values become empty strings;
+values are escaped before inserting them into HTML. Unknown placeholders are
+rejected. The template is required when the flag is true. Set
+`email_enabled` to false to disable sending; existing records default to false.
+These settings are managed separately from the normal event/activity update
+endpoints and are not exposed in public event/activity responses.
+
+One email is attempted after a registration is saved, whether its status is
+pending or accepted. An SMTP error does not undo the registration or cause a
+duplicate on retry; it is logged with the registration ID and is not retried
+automatically. Registration success does not guarantee email delivery. Configure
+log monitoring and check SMTP settings before enabling notifications.
+
+### Email attempt log
+
+Every attempt is stored in the `email_log` collection with `date` (UTC),
+`email`, `user`, `username`, `item_type` (`event` or `activity`), `event`,
+`activity`, `registration`, `subject`, the rendered HTML `template`, `success`
+and `error`. Activity attempts also store their parent `event`. Nothing is
+logged when `email_enabled` is false. Failures before rendering (for example,
+missing configuration) are logged with `template` set to `null`.
+
+Review attempts with `GET /api/event/{id}/email-logs` (includes the event's
+activities) or `GET /api/activity/{id}/email-logs`. Use `success=false` to find
+failed sends; `page_number` and `n_per_page` paginate the results. Compare the
+registrations with the logged attempts to confirm every registrant was emailed.
+
+
+# Emain into Json Payload
+
+```python
+import json
+
+html = """
+    <p>Hola {{given_name}}, recibimos tu registro como {{username}}.</p>
+"""
+
+payload = {
+    "email_enabled": True,
+    "email_template": html
+}
+
+json_string = json.dumps(payload, ensure_ascii=False)
+
+print(json_string)
+```

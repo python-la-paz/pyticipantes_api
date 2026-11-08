@@ -37,6 +37,8 @@ class Activity(ActivityAPI):
     is_full: Optional[bool] = False
 
 class ActivityInDB(Activity):
+    email_enabled: bool = False
+    email_template: Optional[str] = None
     disabled: Optional[bool] = False
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None

@@ -38,6 +38,8 @@ class Event(EventAPI):
 
 
 class EventInDB(Event):
+    email_enabled: bool = False
+    email_template: Optional[str] = None
     disabled: Optional[bool] = False
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None
