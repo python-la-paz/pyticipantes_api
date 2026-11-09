@@ -4,12 +4,14 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 
 from app.models.activity import Activity, ActivityRegister, ActivityUsersMigration
+from app.models.additional_info import AdditionalInfoAnswer, AdditionalInfoQuestion
 from app.models.fileblob import FileBlob
+from app.models.registration import REGISTRATION_TIMEZONE, RegistrationPeriod
 from app.models.user import User
 from app.utils import PyObjectId
 
 
-class EventAPI(BaseModel):
+class EventAPI(RegistrationPeriod):
     title: str
     description: str
     date: datetime
@@ -27,14 +29,17 @@ class EventAPI(BaseModel):
     finished: Optional[bool] = False
     tags: Optional[List[str]] = []
     organizers: Optional[List[str]] = []
-    additional_info: Optional[List[str]] = []
+    additional_info: Optional[List[AdditionalInfoQuestion]] = Field(default_factory=list)
     document_required: Optional[bool] = False
     automatic: Optional[bool] = False
+
 class Event(EventAPI):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
 
 
 class EventInDB(Event):
+    email_enabled: bool = False
+    email_template: Optional[str] = None
     disabled: Optional[bool] = False
     date_insert: Optional[datetime] = None
     date_update: Optional[datetime] = None
@@ -50,7 +55,7 @@ class EventRegister(BaseModel):
     status: Optional[str] = "pending" # pending, accepted, rejected
     note: Optional[str] = None
     document_upload: Optional[FileBlob] = None
-    additional_info: Optional[List[str]] = []
+    additional_info: Optional[List[AdditionalInfoAnswer]] = Field(default_factory=list)
     rrss: Optional[PyObjectId] = None
 
 class EventRegisterInDB(EventRegister):

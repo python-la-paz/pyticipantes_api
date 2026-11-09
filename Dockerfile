@@ -5,7 +5,8 @@ RUN apk update && apk add --no-cache python3-dev \
     libc-dev \
     libffi-dev
 WORKDIR /app/
-ADD . /app/
+COPY requirements.txt /app/
 RUN pip install  --no-cache-dir -r requirements.txt
+COPY . /app/
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--workers", "2", "--host", "0.0.0.0" ]

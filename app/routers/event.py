@@ -1,15 +1,18 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from app.auth.access import get_actual_user, get_api_key
 from app.models import Event, EventInDB, FileBlob, UserInDB
 from app.models.activity import ActivityUsersMigration
 from app.models.event import EventAPI, EventRegisterMigration
+from app.models.email_notification import RegistrationEmailConfig
+from app.models.email_log import EmailLog
 from app.models.user import User
 from app.services import EventService
 from app.services.activity import ActivityService
 from app.services.bl.event_register import EventRegistration
+from app.services.email_log import EmailLogService
 from app.services.user import UserService
 from app.utils import google_cloud_storage
 from app.utils.mongo_validator import PyObjectId
@@ -59,6 +62,38 @@ async def update_event(
 async def delete_event(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
     EventService.delete(id=id)
     return None
+
+
+@router.get("/{id}/email-config", response_model=RegistrationEmailConfig)
+async def get_event_email_config(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
+    config = EventService.get_email_config(id)
+    if config is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return config
+
+
+@router.put("/{id}/email-config", response_model=RegistrationEmailConfig)
+async def update_event_email_config(
+    id: PyObjectId, config: RegistrationEmailConfig, user: UserInDB = Depends(get_actual_user)
+):
+    updated = EventService.update_email_config(id, config, user.username)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return updated
+
+
+@router.get("/{id}/email-logs", response_model=List[EmailLog])
+async def get_event_email_logs(
+    id: PyObjectId,
+    success: Optional[bool] = None,
+    page_number: int = 0,
+    n_per_page: int = 100,
+    user: UserInDB = Depends(get_actual_user),
+):
+    """Email attempts for the event and its activities; filter by success."""
+    return EmailLogService.list(
+        event=id, success=success, page_number=page_number, n_per_page=n_per_page
+    )
 
 
 @router.post("/{id}/image", response_model=Event, status_code=status.HTTP_201_CREATED)

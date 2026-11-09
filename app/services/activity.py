@@ -5,6 +5,7 @@ from pymongo.collection import ReturnDocument
 
 from app.core.database import db
 from app.models import Activity, ActivityInDB, ActivityRegister, ActivityRegisterInDB
+from app.models.email_notification import RegistrationEmailConfig
 from app.utils import PyObjectId
 
 
@@ -81,10 +82,32 @@ class ActivityService:
         item.date_update = datetime.now(timezone.utc)
         ret = cls.TABLE.find_one_and_update(
             {"_id": item.id, "disabled": False},
-            {"$set": item.model_dump(by_alias=True)},
+            {"$set": item.model_dump(by_alias=True, exclude={"email_enabled", "email_template"})},
             return_document=ReturnDocument.AFTER,
         )
         return Activity(**ret) if ret else None
+
+    @classmethod
+    def get_email_config(cls, id: PyObjectId) -> RegistrationEmailConfig | None:
+        result = cls.TABLE.find_one(
+            {"_id": id, "disabled": False}, {"email_enabled": 1, "email_template": 1}
+        )
+        return RegistrationEmailConfig(**result) if result is not None else None
+
+    @classmethod
+    def update_email_config(
+        cls, id: PyObjectId, config: RegistrationEmailConfig, username: str
+    ) -> RegistrationEmailConfig | None:
+        result = cls.TABLE.find_one_and_update(
+            {"_id": id, "disabled": False},
+            {"$set": {
+                **config.model_dump(),
+                "date_update": datetime.now(timezone.utc),
+                "username_update": username,
+            }},
+            return_document=ReturnDocument.AFTER,
+        )
+        return RegistrationEmailConfig(**result) if result is not None else None
     
     @classmethod
     def delete(cls, id: PyObjectId) -> None:
@@ -263,7 +286,7 @@ class ActivityService:
         )
         registers = {register["_id"]: register["count"] for register in registers}
         for item in items:
-            item.is_full = registers.get(item.id, 0) >= item.quota
+            item.is_full = registers.get(item.id, 0) >= item.quota and item.quota > 0
         return items
     
     @classmethod

@@ -1,6 +1,54 @@
 [
     {
         "_id": {
+            "$oid": "6aed2ff67a5a5b989df52bff"
+        },
+        "code": "activity_registration_not_configured",
+        "message": "Las fechas de inscripciones de la actividad no estan configuradas",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6aed2ff67a5a5b989df52c00"
+        },
+        "code": "activity_registration_not_started",
+        "message": "Las inscripciones de la actividad no han comenzado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6aed2ff67a5a5b989df52c01"
+        },
+        "code": "activity_registration_closed",
+        "message": "Las inscripciones de la actividad estan cerradas",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6aed2ff67a5a5b989df52c02"
+        },
+        "code": "event_registration_not_configured",
+        "message": "Las fechas de registro no estan configuradas",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6aed2ff67a5a5b989df52c03"
+        },
+        "code": "event_registration_not_started",
+        "message": "Los registros no han comenzado",
+        "disabled": false
+    },
+    {
+        "_id": {
+            "$oid": "6aed2ff67a5a5b989df52c04"
+        },
+        "code": "event_registration_closed",
+        "message": "Las inscripciones estan cerradas",
+        "disabled": false
+    },
+    {
+        "_id": {
             "$oid": "671207cf8661d03921d0beff"
         },
         "code": "default",

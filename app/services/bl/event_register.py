@@ -6,9 +6,13 @@ from fastapi import UploadFile
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Event, EventRegister, EventRegisterInDB, FileBlob,
                         StatusCode)
+from app.models.event import REGISTRATION_TIMEZONE
+from app.models.additional_info import AdditionalInfoAnswer
 from app.services import SocialNetworkService
 from app.services.bl.user import UserProfileService
+from app.services.bl.additional_info import validate_additional_info
 from app.services.event import EventService
+from app.services.registration_email import notify_registration
 from app.utils import PyObjectId, google_cloud_storage
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 
@@ -37,7 +41,7 @@ class EventRegistration:
         username: str,
         file: UploadFile,
         size_image: int,
-        additional_info: List[str],
+        additional_info: List[AdditionalInfoAnswer],
         rrss: str,
     ) -> Tuple[EventRegisterInDB | None, str, StatusCode]:
         user = UserProfileService.get_public_user(username)
@@ -51,8 +55,26 @@ class EventRegistration:
         if event is None:
             return None, "Event not found", StatusCode.EVENT_NOT_FOUND
 
-        if event.date < datetime.now():
-            return None, "Event already finished", StatusCode.EVENT_ALREADY_FINISHED
+        if event.registration_start is None or event.registration_end is None:
+            return (
+                None,
+                "Registration dates not configured",
+                StatusCode.EVENT_REGISTRATION_NOT_CONFIGURED,
+            )
+
+        now = datetime.now(REGISTRATION_TIMEZONE).replace(tzinfo=None)
+        if now < event.registration_start:
+            return (
+                None,
+                "Registration not started",
+                StatusCode.EVENT_REGISTRATION_NOT_STARTED,
+            )
+        if now > event.registration_end:
+            return (
+                None,
+                "Registration closed",
+                StatusCode.EVENT_REGISTRATION_CLOSED,
+            )
 
         full, seat = EventService.is_full(event)
         if full:
@@ -61,6 +83,11 @@ class EventRegistration:
         already = EventService.is_already_registered(event, user.id)
         if already:
             return None, "User already registered", StatusCode.USER_ALREADY_REGISTERED
+
+        validation_error = validate_additional_info(event.additional_info, additional_info)
+        if validation_error is not None:
+            message, code = validation_error
+            return None, message, code
 
         blob = None
         if event.document_required:
@@ -86,12 +113,6 @@ class EventRegistration:
             if result:
                 blob = FileBlob(name=filename, url=url, content_type=content_type)
 
-        if event.additional_info and not additional_info:
-            return None, "Additional info required", StatusCode.ADDITIONAL_INFO_REQUIRED
-
-        if len(additional_info) != len(event.additional_info):
-            return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
-    
         if not rrss:
             return None, "RRSS required", StatusCode.RRSS_REQUIRED
         social_network = SocialNetworkService.get(rrss)
@@ -112,6 +133,9 @@ class EventRegistration:
         register = EventService.register_in_event(register)
         if register is None:
             return None, "Error registering", StatusCode.ERROR_REGISTERING
+        notify_registration(
+            EventService.get_email_config, event.id, register.id, "event", event.title, user
+        )
         return register, "Success", StatusCode.REGISTER_COMPLETE
 
     @classmethod
