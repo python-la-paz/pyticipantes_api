@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 
 from app.auth.access import get_api_key_public
 from app.models import Result, Token, Activity, ActivityRegister
+from app.models.additional_info import AdditionalInfoAnswer
+from app.routers.public.additional_info import parse_additional_info
 from app.services import ActivityService
 from app.services.bl import ActivityRegistration
 from app.services.messages import MessagesService
@@ -32,12 +34,10 @@ async def register_in_activity(
     request: Request,
     id: PyObjectId,
     file: Optional[UploadFile] = None,
-    additional_info: List[str] = Form([]),
+    additional_info: List[AdditionalInfoAnswer] = Depends(parse_additional_info),
     user: Token = Depends(get_api_key_public),
 ):
     """Register in an activity."""
-    if not additional_info or additional_info == [""]:
-        additional_info = []
     try:
         size_image = request.headers.get("content-length")
         size_image = int(size_image)

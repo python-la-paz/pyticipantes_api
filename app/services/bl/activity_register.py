@@ -6,9 +6,13 @@ from fastapi import UploadFile
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import (Activity, ActivityRegister, ActivityRegisterInDB, FileBlob,
                         StatusCode)
+from app.models.registration import REGISTRATION_TIMEZONE
+from app.models.additional_info import AdditionalInfoAnswer
 
+from app.services.bl.additional_info import validate_additional_info
 from app.services.bl.user import UserProfileService
 from app.services.activity import ActivityService
+from app.services.registration_email import notify_registration
 from app.utils import PyObjectId, google_cloud_storage
 from app.utils.content_types import CONTENT_TYPES_IMAGE, CONTENT_TYPES_VALID
 
@@ -41,7 +45,7 @@ class ActivityRegistration:
         username: str,
         file: UploadFile,
         size_image: int,
-        additional_info: List[str],
+        additional_info: List[AdditionalInfoAnswer],
     ) -> Tuple[ActivityRegisterInDB | None, str, StatusCode]:
         user = UserProfileService.get_public_user(username)
         if user is None:
@@ -51,14 +55,35 @@ class ActivityRegistration:
         activity = ActivityService.get_public_not_finished(id = id)
         if activity is None:
             return None, "Activity not found", StatusCode.ACTIVITY_NOT_FOUND
-        if activity.date < datetime.now():
-            return None, "Activity already finished", StatusCode.ACTIVITY_ALREADY_FINISHED
+        if activity.registration_start is None or activity.registration_end is None:
+            return (
+                None,
+                "Registration dates not configured",
+                StatusCode.ACTIVITY_REGISTRATION_NOT_CONFIGURED,
+            )
+        now = datetime.now(REGISTRATION_TIMEZONE).replace(tzinfo=None)
+        if now < activity.registration_start:
+            return (
+                None,
+                "Registration not started",
+                StatusCode.ACTIVITY_REGISTRATION_NOT_STARTED,
+            )
+        if now > activity.registration_end:
+            return (
+                None,
+                "Registration closed",
+                StatusCode.ACTIVITY_REGISTRATION_CLOSED,
+            )
         full, seat = ActivityService.is_full(activity)
         if full:
             return None, "Activity full", StatusCode.ACTIVITY_FULL
         already = ActivityService.is_already_registered(activity, user.id)
         if already:
             return None, "User already registered", StatusCode.USER_ALREADY_REGISTERED
+        validation_error = validate_additional_info(activity.additional_info, additional_info)
+        if validation_error is not None:
+            message, code = validation_error
+            return None, message, code
         blob = None
         if activity.document_required:
             if not file.content_type in CONTENT_TYPES_IMAGE:
@@ -78,10 +103,6 @@ class ActivityRegistration:
             )
             if result:
                 blob = FileBlob(name=filename, url=url, content_type=content_type)
-        if activity.additional_info and not additional_info:
-            return None, "Additional info required", StatusCode.ADDITIONAL_INFO_REQUIRED
-        if len(additional_info) != len(activity.additional_info):
-            return None, "Responses are not complete", StatusCode.RESPONSES_NOT_COMPLETE
         register = ActivityRegisterInDB(
             activity=activity.id,
             user=user.id,
@@ -94,7 +115,10 @@ class ActivityRegistration:
         register = ActivityService.register_in_activity(register)
         if register is None:
             return None, "Error registering", StatusCode.ERROR_REGISTERING
-            
+        notify_registration(
+            ActivityService.get_email_config, activity.id, register.id,
+            "activity", activity.title, user, event_id=activity.event,
+        )
         return register, "Success", StatusCode.REGISTER_COMPLETE
 
     @classmethod

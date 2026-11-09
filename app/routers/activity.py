@@ -1,10 +1,13 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from app.auth.access import get_actual_user
 from app.models import Activity, UserInDB, ActivityInDB
 from app.models.fileblob import FileBlob
+from app.models.email_notification import RegistrationEmailConfig
+from app.models.email_log import EmailLog
 from app.services import ActivityService
+from app.services.email_log import EmailLogService
 from app.utils import google_cloud_storage
 from app.utils.mongo_validator import PyObjectId
 
@@ -50,6 +53,38 @@ async def delete_activity(id: PyObjectId, user: UserInDB = Depends(get_actual_us
     """Delete an activity by ID."""
     ActivityService.delete(id=id)
     return None
+
+
+@router.get("/{id}/email-config", response_model=RegistrationEmailConfig)
+async def get_activity_email_config(id: PyObjectId, user: UserInDB = Depends(get_actual_user)):
+    config = ActivityService.get_email_config(id)
+    if config is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return config
+
+
+@router.put("/{id}/email-config", response_model=RegistrationEmailConfig)
+async def update_activity_email_config(
+    id: PyObjectId, config: RegistrationEmailConfig, user: UserInDB = Depends(get_actual_user)
+):
+    updated = ActivityService.update_email_config(id, config, user.username)
+    if updated is None:
+        raise HTTPException(status_code=404, detail="Activity not found")
+    return updated
+
+
+@router.get("/{id}/email-logs", response_model=List[EmailLog])
+async def get_activity_email_logs(
+    id: PyObjectId,
+    success: Optional[bool] = None,
+    page_number: int = 0,
+    n_per_page: int = 100,
+    user: UserInDB = Depends(get_actual_user),
+):
+    """Email attempts for the activity; filter by success."""
+    return EmailLogService.list(
+        activity=id, success=success, page_number=page_number, n_per_page=n_per_page
+    )
 
 @router.post("/{id}/image", response_model=Activity, status_code=status.HTTP_201_CREATED)
 async def create_activity_image(id: PyObjectId, image: UploadFile, user: UserInDB = Depends(get_actual_user)):

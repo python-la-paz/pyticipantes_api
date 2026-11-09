@@ -7,6 +7,8 @@ from app.auth.access import get_api_key_public
 from app.core.configuration import MAX_SIZE_IMAGE_MB
 from app.models import Event, EventRegister, Result, Token
 from app.models.activity import Activity, ActivityRegister
+from app.models.additional_info import AdditionalInfoAnswer
+from app.routers.public.additional_info import parse_additional_info
 from app.services.bl import EventRegistration, UserProfileService
 from app.services.bl.activity_register import ActivityRegistration
 from app.services.messages import MessagesService
@@ -42,7 +44,7 @@ async def register_in_event(
     request: Request,
     id: PyObjectId,
     file: Optional[UploadFile] = None,
-    additional_info: List[str] = Form([]),
+    additional_info: List[AdditionalInfoAnswer] = Depends(parse_additional_info),
     rrss: Optional[PyObjectId] = Form(None),
     user: Token = Depends(get_api_key_public),
 ):
