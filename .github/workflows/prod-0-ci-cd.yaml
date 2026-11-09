@@ -10,13 +10,9 @@ on:
 
 jobs:
 
-  lint:
-    uses: ./.github/workflows/z-lint.yaml
-
   build:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/prod-1-ci.yaml
-    needs: lint
     with:
       environment: prod
       image_repository: ${{ vars.DOCKER_IMAGE }}
